@@ -44,3 +44,10 @@ déconnectés. L'Action refuse de publier tant que l'empreinte vaut `A_DEFINIR`.
 - `tools/convert_apkg.py` : conversion en `site/data/` (non versionné).
 - `site/` : le site publié (`js/core.js` notation testée, `js/app.js` écrans).
 - `tests/` : tests de la notation (`node --test`).
+
+## Version et changelog
+
+Le pied de page affiche le numéro de version (nombre de commits), la date du dernier commit et le
+changelog : la première ligne du message de chacun des 10 derniers commits. Écrire donc cette
+première ligne comme une phrase compréhensible par les étudiants
+(ex. « Ajout du cours CM7 Épilepsie »). Produit par `tools/version.py` à la publication.

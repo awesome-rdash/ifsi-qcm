@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -33,6 +35,9 @@ jobs:
         run: |
           pip install "zstandard>=0.22"
           python tools/convert_apkg.py
+
+      - name: Version et changelog
+        run: python tools/version.py
 
       - name: Vérifier le mot de passe configuré
         run: "! grep -q \"A_DEFINIR\" site/js/config.js || (echo '::error::Empreinte du mot de passe non définie dans site/js/config.js' && exit 1)"

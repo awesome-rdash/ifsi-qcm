@@ -521,5 +521,23 @@ app.addEventListener('click', e => {
   if (b) { e.preventDefault(); ACTIONS[b.dataset.action](); }
 });
 
+// Pied de page : version, date de mise à jour et changelog (site/data/version.json, produit à la publication).
+const dateHeure = iso => {
+  const d = new Date(iso), tz = { timeZone: 'Europe/Paris' };
+  return `${d.toLocaleDateString('sv-SE', tz)} à ${d.toLocaleTimeString('fr-FR', { ...tz, hour: '2-digit', minute: '2-digit' })}`;
+};
+fetch('data/version.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(v => {
+  if (!v) return;
+  const maj = document.getElementById('maj'), ver = document.getElementById('version');
+  maj.textContent = `Mis à jour le ${dateHeure(v.date)}`;
+  ver.querySelector('summary span').textContent = v.version;
+  for (const c of v.changelog) {
+    const li = document.createElement('li');
+    li.textContent = `Version ${c.version} (${dateHeure(c.date)}) : ${c.raison}`;
+    ver.querySelector('ul').append(li);
+  }
+  maj.hidden = ver.hidden = false;
+}).catch(() => {});
+
 if (lire(CLES.auth, null) === EMPREINTE && EMPREINTE !== 'A_DEFINIR') ecranAccueil();
 else ecranConnexion();
