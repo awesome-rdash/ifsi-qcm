@@ -1,0 +1,57 @@
+name: Publier
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Tests de la notation
+        run: node --test "tests/*.test.mjs"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Conversion des paquets Anki
+        run: |
+          pip install "zstandard>=0.22"
+          python tools/convert_apkg.py
+
+      - name: Vérifier le mot de passe configuré
+        run: "! grep -q \"A_DEFINIR\" site/js/config.js || (echo '::error::Empreinte du mot de passe non définie dans site/js/config.js' && exit 1)"
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: site
+
+  deployer:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: construire
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4
