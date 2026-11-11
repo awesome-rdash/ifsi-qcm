@@ -374,30 +374,37 @@ function correction(it) {
   const q = questionDe(it);
   const c = charges.get(it.cours);
   const pts = noter(q.mode, q.reponses, it.choix);
+  // Couleur = vérité de la proposition (vraie en vert) ; erreur de l'étudiant = barre rouge + texte.
   const lignes = it.ordre.map((k, j) => {
     const bon = q.reponses[k] === 1;
-    let donne, juste;
+    let donne, marque, juste, verdict;
     if (q.mode === KPRIM) {
       const v = it.choix?.[k] ?? null;
       donne = v == null ? 'sans réponse' : v ? 'Vrai' : 'Faux';
+      marque = v == null ? '–' : v ? 'V' : 'F';
       juste = v === bon;
+      verdict = juste ? 'Bien jugé' : v == null ? 'Pas de réponse' : `Vous avez répondu ${donne}`;
     } else {
       const coche = it.choix?.[k] === true;
       donne = coche ? 'cochée' : 'non cochée';
+      marque = q.mode === QCS ? (coche ? '◉' : '○') : (coche ? '☑' : '☐');
       juste = coche === bon;
+      verdict = juste ? (coche ? 'Bien cochée' : 'Bien laissée') : coche ? 'Cochée à tort' : 'Oubliée : il fallait la cocher';
     }
-    return `<li class="${juste ? 'ok' : 'ko'}"><span class="sym" aria-hidden="true">${juste ? '✓' : '✗'}</span>
-      ${LETTRES[j]}. ${assainir(q.propositions[k], c.base)}
-      <span class="detail">Votre réponse : ${donne} · Proposition ${bon ? 'vraie' : 'fausse'} ·
-        <strong>${juste ? 'Juste' : 'Erreur'}</strong></span></li>`;
+    return `<li class="${bon ? 'vraie' : 'fausse'}${juste ? '' : ' rate'}">
+      <span class="marque-eleve" aria-hidden="true">${marque}</span>
+      <span class="txt">${LETTRES[j]}. ${assainir(q.propositions[k], c.base)}</span>
+      <span class="verite">${bon ? '✓ Vraie' : '✗ Fausse'}</span>
+      <span class="verdict"><span class="sr">Votre réponse : ${donne}. </span>${juste ? '✓' : '✗'} ${verdict}</span></li>`;
   }).join('');
   return `<div class="correction">
     <p class="points">${it.statut === 'passe' ? 'Question passée — ' : ''}${fr(pts)} point${pts > 1 ? 's' : ''} sur 1</p>
     <ul class="props">${lignes}</ul>
     ${q.danger ? '<p class="alerte-danger">⛔ Erreur dangereuse signalée pour cette question (voir ci-dessous).</p>' : ''}
     ${q.infos ? `<div class="infos">${surligner(assainir(q.infos, c.base))}</div>` : ''}
-    ${q.page_cours.length ? `<div class="pages"><button type="button" class="voir-page"
-      data-src="${esc(JSON.stringify(q.page_cours.map(p => c.base + p)))}">Voir la page du cours</button></div>` : ''}
+    ${q.page_cours.length ? `<div class="pages"><h4>Page${q.page_cours.length > 1 ? 's' : ''} du cours</h4>${
+      q.page_cours.map(p => `<a href="${esc(c.base + p)}" target="_blank" rel="noopener">
+        <img src="${esc(c.base + p)}" alt="Page du cours (ouvrir en grand)" loading="lazy"></a>`).join('')}</div>` : ''}
     ${q.sources ? `<p class="sources"><b>Sources :</b> ${assainir(q.sources, c.base)}</p>` : ''}
   </div>`;
 }
@@ -510,12 +517,6 @@ const ACTIONS = {
 };
 
 app.addEventListener('click', e => {
-  const page = e.target.closest('.voir-page');
-  if (page) {
-    page.outerHTML = JSON.parse(page.dataset.src).map(src =>
-      `<a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="Page du cours"></a>`).join('');
-    return;
-  }
   const b = e.target.closest('[data-action]');
   if (b) { e.preventDefault(); ACTIONS[b.dataset.action](); }
 });

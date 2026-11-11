@@ -90,10 +90,11 @@ et voit sa progression (question n / total).
 
 ### User Story 4 - Correction d'une question (Priority: P1)
 
-Pour chaque proposition : ce que l'étudiant a répondu, la bonne réponse, et si c'est juste (par un
-symbole et un texte, pas seulement une couleur). Puis les points obtenus, les informations
-complémentaires (explication, signalements ⛔ mis en évidence, ✎ et ⚠, glossaire) et les sources.
-La page du cours en image s'ouvre à la demande.
+Pour chaque proposition : si elle est vraie ou fausse (la couleur suit la vérité de la
+proposition, pas la réponse de l'étudiant), ce que l'étudiant a répondu, et ses erreurs signalées
+à part (barre, symbole et texte : « cochée à tort », « oubliée »). Puis les points obtenus, les
+informations complémentaires (explication, signalements ⛔ mis en évidence, ✎ et ⚠, glossaire),
+la page du cours en image et les sources.
 
 **Why this priority**: c'est là que l'étudiant apprend.
 
@@ -102,11 +103,13 @@ La page du cours en image s'ouvre à la demande.
 **Acceptance Scenarios**:
 
 1. **Given** une question corrigée, **When** l'écran s'affiche, **Then** chaque proposition montre
-   la réponse donnée, la bonne réponse et un symbole juste/faux.
-2. **Given** une question dont les informations contiennent ⛔, **When** la correction s'affiche,
+   « vraie » ou « fausse », la réponse donnée, et un verdict ✓/✗ en texte.
+2. **Given** une bonne réponse que l'étudiant n'a pas cochée, **When** la correction s'affiche,
+   **Then** la proposition apparaît comme vraie (vert) avec l'erreur « oubliée » signalée à part.
+3. **Given** une question dont les informations contiennent ⛔, **When** la correction s'affiche,
    **Then** le signalement est mis en évidence.
-3. **Given** une question avec page de cours, **When** l'étudiant demande la page, **Then** l'image
-   de la page se charge et s'affiche ; elle n'est pas téléchargée avant.
+4. **Given** une question avec page de cours, **When** la correction s'affiche, **Then** l'image de
+   la page est affichée sans action de l'étudiant ; elle n'est pas téléchargée avant la correction.
 
 ---
 
@@ -228,11 +231,13 @@ La publication convertit le paquet et met à jour l'arbre et les compteurs sans 
   progression « n / total ».
 - **FR-021**: QCS en choix unique, QCM en cases à cocher, Kprim en Vrai/Faux par affirmation.
 - **FR-022**: L'étudiant MUST pouvoir valider ou passer ; une question passée vaut 0.
-- **FR-023**: La correction MUST montrer, pour chaque proposition, la réponse donnée, la bonne
-  réponse et si c'est juste, par symbole et texte en plus de la couleur.
+- **FR-023**: La correction MUST montrer, pour chaque proposition, si elle est vraie ou fausse
+  (couleur selon la vérité de la proposition), la réponse donnée, et les erreurs de l'étudiant
+  signalées séparément par symbole et texte.
 - **FR-024**: La correction MUST montrer les points obtenus, les informations complémentaires
   telles quelles (⛔ mis en évidence), et les sources.
-- **FR-025**: La page du cours en image MUST se charger seulement à la demande.
+- **FR-025**: La page du cours en image MUST être affichée dans chaque correction ; elle n'est
+  téléchargée qu'à l'affichage de la correction.
 - **FR-026**: Le contenu des questions MUST être affiché sans réécriture ; le HTML est assaini
   (liste blanche de balises) avant affichage.
 
