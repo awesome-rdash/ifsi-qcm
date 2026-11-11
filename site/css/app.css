@@ -118,6 +118,7 @@ progress { width: 100%; height: 8px; accent-color: var(--accent); }
 }
 .correction li.vraie { background: var(--ok-fond); border-color: var(--ok); }
 .correction li.rate { box-shadow: inset 6px 0 0 var(--ko); padding-left: 18px; }
+.correction li.fausse.rate { background: var(--ko-fond); border-color: var(--ko); }
 .marque-eleve { font-size: 1.2rem; line-height: 1.3; min-width: 1.2em; text-align: center; font-weight: 700; }
 .verite { font-size: .8rem; font-weight: 700; white-space: nowrap; border-radius: 999px; padding: 1px 8px; border: 1px solid; }
 .vraie .verite { color: var(--ok); }
@@ -145,3 +146,11 @@ details.revoir { background: var(--carte); border: 1px solid var(--bord); border
 details.revoir summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 
 fieldset.nu { border: none; background: none; padding: 0; margin: 0; }
+
+/* Pied de page */
+.pied { max-width: 760px; margin: 0 auto; padding: 16px 16px 32px; border-top: 1px solid var(--bord);
+  color: var(--doux); font-size: .85rem; }
+.pied p { margin: .3rem 0; }
+.pied summary { cursor: pointer; padding: 12px 0; }
+.pied ul { margin: 0 0 .5rem; padding-left: 18px; }
+.pied a { display: inline-block; min-height: 44px; line-height: 44px; }
