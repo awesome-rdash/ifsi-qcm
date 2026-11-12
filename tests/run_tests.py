@@ -33,3 +33,11 @@ assert "\tCas clinique\t" in a3, a3                                             
 assert any(f.endswith(".apkg") for f in os.listdir(os.path.join(ok, "out")))
 shutil.rmtree(tmp)
 print("OK")
+
+# 3. glossaire commun sans page de cours ; une entrée du cours remplace l'entrée commune du même terme (D108)
+sys.path.insert(0, os.path.join(HERE, "..", "scripts")); import glossaire
+try: glossaire._check([("X", "x", "déf.", [("CM1 Test, p. 1", None)])], commun=True); raise AssertionError("page de cours acceptée dans le commun")
+except ValueError: pass
+glossaire.add([("IRM", r"\bIRM\b", "Définition du cours.", [("CM1 Test, p. 2", None)])])
+assert [d for t, d, s in glossaire.gloss("une IRM") if t == "IRM"] == ["Définition du cours."]
+print("OK glossaire")

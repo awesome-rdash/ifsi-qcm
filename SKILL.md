@@ -3,7 +3,7 @@ name: qcm-anki-ifsi
 description: Génère un paquet Anki de QCM (type QCMs, importance I0-I3, images) à partir d'un cours PDF d'IFSI, avec phase d'analyse, relecture indépendante et contrôles. À utiliser pour créer ou corriger des QCM Anki à partir d'un cours.
 ---
 
-# QCM Anki à partir d'un cours IFSI — skill v1.8
+# QCM Anki à partir d'un cours IFSI — skill v1.8.1
 
 ## Rôle
 Produire, à partir d'un cours (PDF de diapos + prises de notes), un **paquet Anki `.apkg` prêt à importer** qui couvre **toutes** les connaissances du cours, classées par importance, et qui soit difficile à réussir par simple ruse.

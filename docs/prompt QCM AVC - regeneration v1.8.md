@@ -1,9 +1,10 @@
-Le skill `qcm-anki-ifsi` est passé en **v1.8** : il intègre les retours R-25 à R-37. Régénère le paquet **UE 2.8 – CM6 AVC** avec cette version. Ne modifie pas le skill : un défaut qui vaut pour tous les cours va dans un nouveau document de retours (R-38 et suivants).
+Le skill `qcm-anki-ifsi` est passé en **v1.8.1** : il intègre les retours R-25 à R-37. Régénère le paquet **UE 2.8 – CM6 AVC** avec cette version. Ne modifie pas le skill : un défaut qui vaut pour tous les cours va dans un nouveau document de retours (R-38 et suivants).
 
 **Avant de commencer**
-1. Vérifie que le skill installé est la v1.8 (titre de `SKILL.md`). Lis `SKILL.md`, puis en entier `references/regles.md`, `references/fichiers.md` et `references/relecture.md`.
+1. Vérifie que le skill installé est la v1.8.1 (titre de `SKILL.md`). Lis `SKILL.md`, puis en entier `references/regles.md`, `references/fichiers.md` et `references/relecture.md`.
 2. Lis le journal du paquet (`QCM Anki - Journal paquet CM6 AVC.md`) et `Retours paquet AVC v1.7 (R-25 à R-37).md` : chaque retour indique la règle v1.8 qui le traite.
-3. Espace de travail : copie le dossier `scripts/` du skill dans `Outils/` (le type de note y est maintenant). Dans `cours.py` : `VERSION = "1.8"` et supprime la ligne `REF_APKG` (le chemin par défaut est `Outils/Type de note QCMs.apkg` ; les chemins de `cours.py` sont relatifs au dossier du cours).
+3. Espace de travail : copie le dossier `scripts/` du skill dans `Outils/` (le type de note y est maintenant). Dans `cours.py` : `VERSION = "1.8.1"` et supprime la ligne `REF_APKG` (le chemin par défaut est `Outils/Type de note QCMs.apkg` ; les chemins de `cours.py` sont relatifs au dossier du cours).
+4. Glossaire : le glossaire commun du skill ne cite plus de page de cours. Les 22 définitions qui citent « CM6 AVC, p. … » sont dans `G:\Mon Drive\FOR\IFSI\Anki\Prompts\Outils\exemple CM6 AVC\glossaire_cours.py`. Copie ce fichier dans le dossier du cours (s'il y a déjà un `glossaire_cours.py`, fusionne les deux listes `EXTRA`, une entrée par terme). Sans lui, ces 22 termes perdent leur page de cours et 9 disparaissent du glossaire des cartes.
 
 **Travail sur les fichiers existants** (`k.py`, `r1` à `r6`, dictionnaires de corrections) — mets les modifications v1.8 dans un nouveau dictionnaire (ex. `v18.py`, `FIX`), en dernier dans `CORRECTIONS`.
 - **X1** : ajoute `why` aux 356 cartes : 4 justifications d'une ligne, dans l'ordre des propositions. Vraie : le mécanisme. Fausse : ce à quoi elle correspond. Vignette : pourquoi chaque signe oriente vers la bonne réponse, et les signes qu'on aurait attendus pour chaque mauvaise réponse. Une liste : une ligne par élément (X6).

@@ -42,6 +42,9 @@ Un ou plusieurs fichiers Python (`from common import Q`), dans l'ordre du cours.
 
 ## glossaire_cours.py — termes propres au cours (facultatif)
 `EXTRA = [(terme, motif, définition, [(source, URL ou None)])]` : un seul terme par entrée, source obligatoire, sinon `build.py` bloque.
+- Une page du cours s'écrit `("<cours>, p. <n>", None)` ; elle n'est permise qu'ici, jamais dans `glossaire.py` commun (bloquant).
+- Une entrée du même terme qu'une entrée de `glossaire.py` la **remplace** pour ce cours.
+- Le glossaire d'une carte s'affiche par ordre alphabétique.
 
 ## Sorties de build.py (sans `--report-only`)
 - `.apkg`, avec les images et le type de note QCMs d'id `1604570191317` ;
