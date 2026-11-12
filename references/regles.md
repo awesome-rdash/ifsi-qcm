@@ -82,13 +82,14 @@ Se demander : **quand en ai-je besoin, et que se passe-t-il si je ne l'ai pas ?*
 
 **Question**
 - **R4** — Écrite **en gras** (le script l'ajoute).
-- **R5** — **Mot discriminant souligné** (`<u>…</u>`) quand des cartes ne diffèrent que d'un mot, ou pour un mot décisif (négation, côté, délai, population). Deux mots au maximum.
+- **R5** — **Mot discriminant souligné** (`<u>…</u>`) quand des cartes ne diffèrent que d'un mot, ou pour un mot décisif (négation, côté, délai, population). Quand l'attribut demandé (gravité, terrain, cause, complication, forme, examen…) vaut pour plusieurs maladies, souligner **aussi le sujet** (maladie, sigle) : « <u>Terrain</u> de l'<u>hémorragie méningée</u> ». Chaque passage souligné reste court : le mot ou le groupe nominal. Un attribut souligné sans son sujet est bloquant.
 - **R6** — Ancre sémantique : « délai depuis le début des symptômes », pas seulement « délai ».
-- **R7** — Pas d'indice grammatical, pas de mot de l'énoncé repris seulement dans la bonne réponse.
+- **R7** — Pas d'indice grammatical ni lexical, **dans tous les formats** : aucun mot de l'énoncé ne se retrouve, même sous une autre forme (même racine : bronches / bronchique, méningée / méningé), seulement dans les bonnes réponses. Quand une liste est découpée en plusieurs cartes (C1), **le critère de découpage n'est pas écrit dans la question** (jamais « complication(s) touchant la déglutition ou les bronches »). Contrôle bloquant ; exception justifiée dans `ok`.
 - **R8** — **Domaine en tête** de chaque question : « AVC – Position au lit à la phase aiguë d'un infarctus cérébral ? » (le script l'ajoute à partir de `DOMAINE` dans `cours.py` ; « Vocabulaire – » pour les cartes de vocabulaire).
 - **R9** — **Pas de provenance** dans la question (« selon la note de cours », « cités dans le tableau », « (diapo) », « (schéma) »). La page va dans l'explication (contrôle bloquant).
 - **R10** — **Aucun renvoi à une autre carte** (« même patient », « ci-dessus ») (contrôle bloquant).
 - **R11** — **Le titre ne donne pas la réponse** (ex. titre « Dissection » sur une vignette dont la réponse est la dissection) : imposer un titre neutre avec `titre` (contrôle bloquant en QCS).
+  - **Vignette** : le titre ne nomme **jamais** le diagnostic ni la situation à reconnaître. Titre neutre par défaut (« Cas clinique », `TITRE_VIGNETTE` dans `cours.py`). Un titre imposé ne partage aucun mot (même racine) avec **aucune** proposition, bonne ou mauvaise (contrôle bloquant), ni n'oriente vers l'une d'elles (ex. « Sujet jeune » oriente vers la dissection).
 - **R12** — **Mots sans ambiguïté** : chaque verbe a son complément (« traiter l'HTA », jamais « traiter » seul) ; préciser l'organe (« infarctus cérébral », pas « infarctus ») ; un délai dit son point de départ (« après le début de la céphalée »).
 
 ## V — Vignettes
@@ -96,27 +97,41 @@ Se demander : **quand en ai-je besoin, et que se passe-t-il si je ne l'ai pas ?*
 - **V2** — **Crédibilité stricte** : présentation typique et cohérente ; la réponse découle d'une phrase du cours, citée dans l'explication ; aucune interprétation au-delà du cours ; en cas de doute, pas de vignette.
 - **V3** — Vignettes rédigées avec le **vocabulaire technique** (ptosis, myosis, hémiparésie…), défini dans le glossaire, sauf si la question teste justement la reconnaissance du signe décrit.
 
-## M — Mauvaises réponses
-- **M1** — Elles **ressemblent aux bonnes** : même nature, même niveau de détail.
+## M — Propositions et mauvaises réponses
+- **M1** — Elles **ressemblent aux bonnes** : **même nature** que les autres propositions (toutes des signes, toutes des examens… jamais « mortalité » parmi des signes), même niveau de détail.
 - **M2** — La bonne réponse ne doit pas dépasser **1,3 fois** la longueur moyenne des mauvaises (contrôle bloquant).
 - **M3** — Chacune cible une **confusion identifiée** ; si le bon sens suffit à l'éliminer, la remplacer.
 - **M4** — Chiffres : **valeurs proches** ou mêmes valeurs permutées, jamais une valeur aberrante, ni une valeur juste selon une autre source ou un autre passage du cours.
 - **M5** — Définitions : mauvaises réponses = définitions de **termes proches** (ex. hypoxie/hypoxémie, dyspnée/dysphagie, oligurie/anurie, myosis/mydriase).
 - **M6** — Termes absolus : permis comme pièges, mais ils doivent aussi apparaître dans des propositions vraies du paquet.
 - **M7** — Interdit : « toutes / aucune des réponses », les propositions absurdes.
-- **M8** — Propositions composées (« A ; B ; C ») : la valeur juste de chaque composant n'est **jamais la plus fréquente** parmi les 4 propositions ; équilibrer chaque composant (contrôle bloquant).
+- **M8** — Propositions composées (éléments séparés par « ; », « , », « / » ou « et ») :
+  - la valeur juste de chaque composant n'est **jamais la plus fréquente** parmi les 4 propositions ;
+  - la bonne réponse n'est **jamais la seule à réunir les éléments les plus fréquents** (vote majoritaire : on la devinerait sans rien savoir) ;
+  - équilibrer chaque composant (contrôles bloquants en QCS).
 - **M9** — Répartition en pourcentages : **toutes les catégories** du cours, total = 100 % dans chaque proposition (contrôle bloquant).
 - **M10** — Vérifier qu'une mauvaise réponse n'est pas juste ailleurs : seuil d'une autre recommandation (ex. SpO2 94 %), examen fait dans certains bilans (ex. TSH). En cas de doute, la remplacer.
+- **M11** — **Pas de schéma 2 × 2** : interdit, les propositions composées dont chaque élément qui varie ne prend que 2 valeurs (« frontal / temporal » × « expression / compréhension ») : ce sont des choix binaires indépendants, devinables par élimination. Faire une carte par élément, ou donner plus de valeurs à un élément. Contrôle bloquant ; une exception validée par l'étudiant s'écrit dans `ok`.
+- **M12** — **Propositions indépendantes** : aucune proposition n'inclut, n'implique ou n'exclut une autre par définition (ex. « syndrome méningé non fébrile » exclut « fièvre élevée dès le début » ; « raideur de nuque » fait partie du syndrome méningé). Vérifié par le relecteur des règles (phase 2b).
 
 ## E — Erreurs dangereuses ⛔
 - **E1** — Une mauvaise réponse qui mettrait un patient en danger s'il l'appliquait. Les inclure volontairement sur les gestes de sécurité du cours et les signaler dans `dz` : le script ajoute `⛔ Erreur dangereuse : « … » — raison` et applique P7.
 
 ## X — Informations complémentaires (assemblées par le script)
-- **X1** — Explication : point clé, avec la page du cours.
+- **X1** — Explication : point clé, avec la page du cours, puis **chaque proposition, vraie ou fausse, justifiée en une ligne** (champ `why`) : le mécanisme pour une proposition vraie (ex. pourquoi l'œdème cérébelleux comprime le tronc cérébral) ; pour une fausse, ce à quoi elle correspond (autre maladie, autre examen, valeur inversée).
+  - **Vignette** : pour la bonne réponse, pourquoi **chaque signe** de l'énoncé y oriente ; pour chaque mauvaise réponse, **les signes qu'on aurait attendus**.
+  - Le script affiche chaque proposition suivie de sa justification, une par ligne. Contrôle bloquant : 4 justifications non vides.
 - **X2** — ⛔ / ✎ / ⚠ / Complément (sourcé, S8).
 - **X3** — Glossaire automatique des termes et sigles présents dans l'énoncé, les propositions et l'explication. **Un terme, une définition, une ligne** : jamais « A / B : déf. A / déf. B ». Pour une question de vocabulaire, l'explication nomme le terme que définit chaque mauvaise proposition, pour que le glossaire les définisse tous. **Chaque définition est sourcée** (S8) ; `glossaire.py` bloque une entrée groupée ou sans source. Les **termes des mauvaises réponses** sont aussi définis, avec **leur intérêt** (ce que l'examen mesure, à quoi sert le médicament). **Tout sigle** de l'énoncé, des propositions ou de l'explication est défini (contrôle bloquant) ; un sigle courant sans intérêt propre est écrit en toutes lettres (`TEXT_REPL` dans `cours.py`).
+  - **Tout terme qu'un étudiant de 2e année peut ne pas connaître est défini**, où qu'il soit : bonne réponse comprise (ex. artériographie), vignette, justifications, et **définitions du glossaire elles-mêmes** (ex. « hémostase » dans la définition de thrombophilie). Une expression technique aussi (ex. « des 4 axes »).
+  - **Pas de doublon** : un sigle renvoie au terme complet sans le redéfinir (« ETT : échocardiographie transthoracique, voir Échocardiographie »).
+  - Le script signale dans le rapport les mots techniques sans entrée (`X3_termes_sans_definition`, repérage approximatif : suffixes médicaux et noms propres) et les sigles qui redéfinissent un terme affiché (`X3_doublons_glossaire`). Chaque signalement est traité ; le relecteur des règles complète.
 - **X4** — Page entière du PDF en image.
-- **X5** — Champ **Sources** : `<Type> — <fichier>.pdf, p. <n>` ; `Web — <Organisme>, <titre>, <URL>` ; `Généré par Claude (<modèle>) — skill v<version> — <date> — <id>` ; `Règles du skill qcm-anki-ifsi v<version> : <codes>` (règles principales appliquées à la carte, déduites par le script : S1, R1, R8, M1, M3, X1 toujours ; F5 en QCM ; R11 si titre imposé ; M8 si propositions composées ; M9 si répartition ; F selon le format ; V si vignette ; E1 et P7 si ⛔ ; S5/S6/S3 si ⚠/✎/web ; R5 si mot souligné ; X3 et S8 si glossaire ; G2 si cliché ; M4 si chiffres ; M5 et C3 si définition). Mettre à jour `SKILL_VERSION` dans `build.py` à chaque version du skill.
+- **X5** — Champ **Sources** : `<Type> — <fichier>.pdf, p. <n>` ; `Web — <Organisme>, <titre>, <URL>` ; `Généré par Claude (<modèle>) — skill v<version> — <date> — <id>` ; `Règles du skill qcm-anki-ifsi v<version> : <codes>` (règles principales appliquées à la carte, déduites par le script : S1, R1, R7, R8, M1, M3, M12, X1 toujours ; F5 en QCM ; R11 si titre imposé ou vignette ; M8 et M11 si propositions composées ; M9 si répartition ; F selon le format ; V si vignette ; E1 et P7 si ⛔ ; S5/S6/S3 si ⚠/✎/web ; R5 si mot souligné ; X3 et S8 si glossaire ; G2 si cliché ; M4 si chiffres ; M5 et C3 si définition). Mettre à jour `SKILL_VERSION` dans `build.py` à chaque version du skill.
+- **X6** — **Présentation** des informations complémentaires :
+  - une liste (vocabulaire, éléments, causes…) : **une ligne par élément** ;
+  - **sources numérotées** : renvoi en exposant (¹ ²) dans le texte, liste des sources en fin de champ (le script le fait pour le glossaire) ;
+  - texte aligné à gauche (le script le fait).
 
 ## G — Images
 - **G1** — Infos complémentaires : la **page entière** (JPEG 150 dpi), un fichier par page.

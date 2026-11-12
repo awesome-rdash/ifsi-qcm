@@ -142,7 +142,6 @@ def add(extra):
     _C = [(t, re.compile(p, re.I if not re.search(r"\\b[A-Z]", p) else 0), d, src) for t, p, d, src in G]
 
 def gloss(text):
+    """Entrées (terme, définition, sources) dont le motif apparaît dans le texte ; la mise en forme est faite par build.py."""
     plain = re.sub(r"<[^>]+>", " ", text)
-    def fmt(src):
-        return " ; ".join(f'<a href="{u}">{a}</a>' if u else a for a, u in src)
-    return [f"<i>{t}</i> : {d} <small>({fmt(src)})</small>" for t, rx, d, src in _C if rx.search(plain)]
+    return [(t, d, src) for t, rx, d, src in _C if rx.search(plain)]

@@ -19,6 +19,8 @@ class Q:
     allow: list = field(default_factory=list)  # mots autorisés malgré le contrôle de répétition
     lenok: bool = False  # exception justifiée au contrôle de longueur
     vign: bool = False   # vignette clinique
+    why: list = field(default_factory=list)  # X1 : une justification d'une ligne par proposition, dans l'ordre de props
+    ok: dict = field(default_factory=dict)   # exceptions validées : {code de règle: raison}, ex. {"M11": "validée par l'étudiant (R-25)"}
 
     def __post_init__(self):
         self.ks = self.ks.split()

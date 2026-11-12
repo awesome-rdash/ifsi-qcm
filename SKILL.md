@@ -3,7 +3,7 @@ name: qcm-anki-ifsi
 description: Génère un paquet Anki de QCM (type QCMs, importance I0-I3, images) à partir d'un cours PDF d'IFSI, avec phase d'analyse, relecture indépendante et contrôles. À utiliser pour créer ou corriger des QCM Anki à partir d'un cours.
 ---
 
-# QCM Anki à partir d'un cours IFSI — skill v1.7
+# QCM Anki à partir d'un cours IFSI — skill v1.8
 
 ## Rôle
 Produire, à partir d'un cours (PDF de diapos + prises de notes), un **paquet Anki `.apkg` prêt à importer** qui couvre **toutes** les connaissances du cours, classées par importance, et qui soit difficile à réussir par simple ruse.
@@ -54,11 +54,11 @@ Numérotation : `INC-1…` pour les incohérences, `Q-1…` pour les questions (
 1. Inventaire détaillé dans `k.py` (format : `references/fichiers.md`).
 2. Questions dans un ou plusieurs fichiers `QS = [Q(...)]`, **dans l'ordre du cours**, en appliquant `references/regles.md`.
 3. `cours.py` (et, si besoin, `glossaire_cours.py`).
-4. `python3 Outils/build.py <cours> --report-only` → corriger jusqu'à **zéro blocage**, puis revoir le rapport.
+4. `python3 Outils/build.py <cours> --report-only` → corriger jusqu'à **zéro blocage**, puis traiter chaque ligne du rapport (dont `X3_termes_sans_definition`).
 5. Audit des listes (C1) : pour chaque connaissance qui est une liste, vérifier que chaque élément est la bonne réponse d'au moins une carte.
 
 ### Phase 2b — Relecture indépendante (obligatoire)
-Suivre `references/relecture.md`.
+Suivre `references/relecture.md` : un relecteur à l'aveugle (répond aux questions) et un relecteur des règles (coche chaque règle importante, carte par carte), sur **toutes** les cartes à chaque génération ou régénération.
 
 ### Phase 3 — Livraison
 - `python3 Outils/build.py <cours>` produit le `.apkg`, `- questions.tsv`, `- couverture.xlsx` et `stats.json`.
@@ -80,9 +80,9 @@ Corriger et réimporter : les GUID stables conservent la progression.
 - **P — Importance** : P1 I0 · P2 I1 · P3 I2 · P4 I3 · P5 en cas de doute, le plus important · P6 « pas à connaître » = I3 · P7 ⛔ ⇒ au moins I1 · P8 pas d'autres tags · P9 calibrer sur la collection · P10 hiérarchie · P11 transversalité · P12 chiffres · P13 répartition de contrôle
 - **C — Couverture** : C1 tout, chaque élément de liste · C2 nombre d'angles · C3 vocabulaire · C4 pas de cas progressifs · C5 contrôle bloquant
 - **F — Formats** : F1 QCM · F2 QCS · F3 Kprim · F4 pas de renvoi numéroté · F5 « (s) », définition = QCS · F6 proportions = repères
-- **R — Rédaction** : R1 question autonome · R2 titre · R3 question sobre · R4 gras · R5 mot discriminant souligné · R6 ancre sémantique · R7 pas d'indice · R8 domaine en tête · R9 pas de provenance · R10 pas de renvoi à une carte · R11 le titre ne donne pas la réponse · R12 mots sans ambiguïté
+- **R — Rédaction** : R1 question autonome · R2 titre · R3 question sobre · R4 gras · R5 mot discriminant et sujet soulignés · R6 ancre sémantique · R7 pas d'indice, même racine, tous formats · R8 domaine en tête · R9 pas de provenance · R10 pas de renvoi à une carte · R11 le titre ne donne pas la réponse, vignette à titre neutre · R12 mots sans ambiguïté
 - **V — Vignettes** : V1 objectif ≥ 40 % des I0/I1 · V2 crédibilité stricte · V3 vocabulaire technique
-- **M — Mauvaises réponses** : M1 ressemblent aux bonnes · M2 longueur ≤ 1,3 × · M3 confusion identifiée · M4 chiffres proches · M5 termes proches · M6 absolus · M7 interdits · M8 propositions composées · M9 répartitions = 100 % · M10 pas juste ailleurs
+- **M — Propositions et mauvaises réponses** : M1 même nature que les bonnes · M2 longueur ≤ 1,3 × · M3 confusion identifiée · M4 chiffres proches · M5 termes proches · M6 absolus · M7 interdits · M8 propositions composées, vote majoritaire · M9 répartitions = 100 % · M10 pas juste ailleurs · M11 pas de schéma 2 × 2 · M12 propositions indépendantes
 - **E — Erreurs dangereuses** : E1 ⛔
-- **X — Informations complémentaires** : X1 explication · X2 ⛔ ✎ ⚠ Complément · X3 glossaire · X4 page entière · X5 champ Sources
+- **X — Informations complémentaires** : X1 explication, chaque proposition justifiée · X2 ⛔ ✎ ⚠ Complément · X3 glossaire, tout terme inconnu défini · X4 page entière · X5 champ Sources · X6 présentation (une ligne par élément, sources numérotées)
 - **G — Images** : G1 page entière · G2 cliché recadré · G3 noms en minuscules

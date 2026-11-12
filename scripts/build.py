@@ -13,12 +13,12 @@ from glossaire import gloss
 if os.path.exists(os.path.join(COURSE, "glossaire_cours.py")):
     from glossaire_cours import EXTRA; import glossaire as _g; _g.add(EXTRA)
 
-PDF, PDFNAME, TYPE, CONTEXTE, DECK, PREFIX = C.PDF, C.PDFNAME, C.TYPE, C.CONTEXTE, C.DECK, C.PREFIX
+PDF, PDFNAME, TYPE, CONTEXTE, DECK, PREFIX = os.path.join(COURSE, C.PDF), C.PDFNAME, C.TYPE, C.CONTEXTE, C.DECK, C.PREFIX
 MODEL = getattr(C, "MODEL", "Claude")
 VERSION = getattr(C, "VERSION", "1.2")
 DATE = datetime.date.today().isoformat()
 OUT = os.path.join(COURSE, "out")
-REF_APKG = C.REF_APKG
+REF_APKG = os.path.join(COURSE, getattr(C, "REF_APKG", os.path.join(TOOLS, "Type de note QCMs.apkg")))   # chemins relatifs au dossier du cours
 BASENAME = f"{C.NOM} - QCM - skill v{VERSION} - {DATE}"
 SUFFIX = {0: " <i>(vrai ou faux pour chaque affirmation)</i>", 1: " <i>(une ou plusieurs réponses)</i>", 2: " <i>(une seule réponse)</i>"}
 
@@ -51,6 +51,7 @@ def pages_of(kid):
     return out
 
 DOMAINE = getattr(C, "DOMAINE", "")
+TITRE_VIGNETTE = getattr(C, "TITRE_VIGNETTE", "Cas clinique")
 def qtext(q):
     t = q.q.strip()
     dom = getattr(C, "DOMAINE_VOCAB", DOMAINE) if q.id.startswith("V") else DOMAINE
@@ -63,6 +64,7 @@ def qtext(q):
 
 def title(q):
     if getattr(q, "titre", None): return q.titre   # R11 : titre neutre imposé (ex. vignette dont la section donnerait la réponse)
+    if q.vign: return TITRE_VIGNETTE   # R11 : titre neutre par défaut pour une vignette
     sec = KD[q.ks[0]][3]
     if not q.notion or q.notion == sec or (sig(q.notion) & sig(sec)): return sec   # R2 : pas de section répétée dans la notion
     # la notion n'est ajoutée que si elle apporte une information absente de la question
@@ -84,6 +86,40 @@ def sig(text):
 SIGLES_OK = set(getattr(C, "SIGLES_OK", [])) | {"AVC", "IFSI", "UE", "CM", "SSU"}
 ABS = r"\b(toujours|jamais|systématique\w*|uniquement|seulement|aucun\w*|tous|toutes|quoi qu'il arrive)\b"
 VAGUE = r"\b(souvent|parfois|rarement|habituellement|peut|peuvent|associée?s?)\b"
+
+# racines des mots (R7, R5, R11) : 6 premières lettres sans accent, pour rapprocher « bronches » et « bronchique » ; sigles gardés entiers
+FOLD = str.maketrans("àâäéèêëîïôöùûüçœ", "aaaeeeeiioouuuco")
+def roots(text):
+    out = set()
+    for w in re.findall(r"[A-Za-zÀ-ÿœŒ0-9]+", strip(text)):
+        if w.isupper() and len(w) >= 2: out.add(w)
+        elif len(w) >= 5 and w.lower() not in STOP: out.add(w.lower().translate(FOLD)[:6])
+    return out
+DOM_ROOTS = roots(DOMAINE + " " + getattr(C, "DOMAINE_VOCAB", ""))
+# R5 : mots qui désignent un attribut commun à plusieurs maladies (début du segment souligné)
+ATTRIBUTS = r"(élément|gravité|terrain|cause|complication|forme|mode|signe|symptôme|examen|traitement|objectif|durée|délai|mécanisme|famille|classe|situation|paramètre|mortalité|handicap|fréquence|définition|facteur|risque|indication|contre-indication|surveillance|localisation|siège|âge|évolution|pronostic|prévention|bilan)"
+
+# propositions composées (M8, M11) : éléments séparés par « ; », « , », « / » ou « et » (pas « 0 et 30 », pas « 1/4 »)
+SEP = re.compile(r"\s*;\s*|,\s+|\s+/\s+|(?<!\d)\s+et\s+(?!\d)")
+def parts(p): return [re.sub(r"^[≈~]\s*", "", x.strip().lower()) for x in SEP.split(strip(p)) if x.strip()]
+
+# X3 : mots techniques à définir (repérage approximatif : suffixes médicaux et noms propres) ; signalés, non bloquants
+TECH = re.compile(r"(ite|ose|ome|émie|urie|pathie|plégie|parésie|phasie|algie|ectomie|tomie|graphie|scopie|philie|pénie|lyse|trophie|plastie|stase|esthésie|opsie|praxie|gnosie|rragie|rrhée)s?$", re.I)
+COURANTS = set("""limite limites suite ensuite conduite site visite petite réussite faite droite gratuite chose choses dose doses pose propose
+rose cause somme comme homme hommes forme formes norme normes volume dépose expose suppose impose dispose risque note notes vite
+reste suite écrite inscrite dite produite réduite habite évite mérite unité qualité quantité priorité sécurité activité mobilité
+gravité spécialité totalité majorité minorité capacité continuité extrémité diversité nécessité intensité fragilité stabilité santé
+syndrome symptôme analyse diagnose prise surprise reprise petites traite traitée facilite repose
+hémorragie hémorragies glycémie hyperglycémie hypoglycémie hypoglycémies ischémie anémie nécrose anatomie radiographie échographie""".split())   # mots courants ou connus en 2e année
+def a_definir(text):
+    import glossaire
+    plain, out = strip(text), set()
+    for m in re.finditer(r"[A-Za-zÀ-ÿœŒ]+(?:-[A-Za-zÀ-ÿœŒ]+)*", plain):
+        w, before = m.group(), plain[:m.start()].rstrip()
+        tech = len(w) >= 5 and TECH.search(w) and w.lower() not in COURANTS
+        propre = before and (before[-1].isalnum() or before[-1] in ",'’") and len(w) >= 4 and w[0].isupper() and w[1:].islower()   # nom propre en milieu de phrase
+        if (tech or propre) and not any(rx.search(w) for _t, rx, _d, _s in glossaire._C): out.add(w)
+    return out
 
 def checks():
     block, report = [], collections.defaultdict(list)
@@ -124,15 +160,35 @@ def checks():
         fal = set().union(*[sig(p) for i, p in enumerate(P) if q.truth[i] == "0"])
         leak = (ts & tru) - fal - qs_ - allow
         if leak: (block if q.mode == 2 else report["titre_dans_bonnes_reponses"]).append(f"{q.id}: le titre donne la réponse (R11) {sorted(leak)} | T={title(q)}")
-        # M8 : propositions composées (« a ; b ») : la bonne valeur de chaque composant n'est pas la plus fréquente
-        parts = [[x.strip().lower() for x in strip(p).split(";")] for p in P]
-        if q.mode == 2 and all(len(x) == len(parts[0]) >= 2 for x in parts):
-            key = parts[q.truth.index("1")]
-            for j in range(len(key)):
-                c = collections.Counter(x[j] for x in parts)
-                if len(c) == 1: continue
-                if c[key[j]] > 1 and c[key[j]] == max(c.values()) and list(c.values()).count(c[key[j]]) == 1:
-                    block.append(f"{q.id}: composant {j+1} de la bonne réponse le plus fréquent (M8) : {key[j]}")
+        # R11 : un titre de vignette ne nomme ni le diagnostic ni la situation : aucune racine commune avec une proposition, bonne ou mauvaise
+        if q.vign and q.titre and "R11" not in q.ok:   # le titre par défaut (TITRE_VIGNETTE) est neutre
+            vl = (roots(title(q)) & roots(" ".join(P))) - roots(Q)
+            if vl: block.append(f"{q.id}: titre de vignette qui nomme une proposition (R11) {sorted(vl)} | T={title(q)}")
+        # M8 / M11 : propositions composées
+        PP = [parts(p) for p in P]
+        if all(len(x) >= 2 for x in PP):
+            same = len({len(x) for x in PP}) == 1
+            if q.mode == 2 and "M8" not in q.ok:
+                k_ = q.truth.index("1"); key = PP[k_]
+                # composant par composant : la bonne valeur n'est jamais la seule plus fréquente
+                for j in range(len(key) if same else 0):
+                    c = collections.Counter(x[j] for x in PP)
+                    if len(c) == 1: continue
+                    if c[key[j]] > 1 and c[key[j]] == max(c.values()) and list(c.values()).count(c[key[j]]) == 1:
+                        block.append(f"{q.id}: composant {j+1} de la bonne réponse le plus fréquent (M8) : {key[j]}")
+                # vote majoritaire : la bonne réponse n'est pas la seule à réunir les éléments les plus fréquents
+                c = collections.Counter(e for x in PP for e in set(x))
+                sc = [sum(c[e] for e in set(x)) / len(set(x)) for x in PP]
+                if sc[k_] == max(sc) and sc.count(max(sc)) == 1 and c.most_common(1)[0][1] > 1:
+                    block.append(f"{q.id}: la bonne réponse réunit les éléments majoritaires (M8, vote) : {strip(P[k_])}")
+            # 2 × 2 : chaque élément qui varie ne prend que 2 valeurs → choix binaires devinables
+            if same and "M11" not in q.ok:
+                var = [n for n in (len({x[j] for x in PP}) for j in range(len(PP[0]))) if n > 1]
+                if len(var) >= 2 and all(n == 2 for n in var):
+                    block.append(f"{q.id}: propositions composées à 2 valeurs par élément (M11) : {' | '.join(strip(p) for p in P)}")
+        # X1 : chaque proposition, vraie ou fausse, est justifiée en une ligne (champ why, cité avec sa proposition)
+        if "X1" not in q.ok and (len(q.why) != 4 or not all(str(w_).strip() for w_ in q.why)):
+            block.append(f"{q.id}: justification manquante pour une ou plusieurs propositions (X1) : why={len(q.why)}/4")
         # M9 : pourcentages d'une répartition = 100
         for p_ in P:
             pc = [float(x.replace(",", ".")) for x in re.findall(r"(\d+(?:,\d+)?)\s*%", p_)]
@@ -158,11 +214,28 @@ def checks():
         f_abs = any(re.search(ABS, p, re.I) and q.truth[i] == "0" for i, p in enumerate(P))
         t_abs = any(re.search(ABS, p, re.I) and q.truth[i] == "1" for i, p in enumerate(P))
         if f_abs and not t_abs: report["absolus_faux_seulement"].append(q.id)
-        # mot de l'énoncé repris seulement dans la clé (QCS)
-        if q.mode == 2:
-            kw = sig(P[q.truth.index("1")]) & qs_
-            others = set().union(*[sig(p) for i, p in enumerate(P) if q.truth[i] == "0"])
-            if kw - others: report["mot_enonce_dans_cle"].append(f"{q.id}:{sorted(kw - others)}")
+        # R7 : mot de l'énoncé (comparé par racine) repris seulement dans les bonnes réponses, tous formats
+        if "0" in q.truth and "1" in q.truth and "R7" not in q.ok:
+            tr_ = set().union(*[roots(p) for i, p in enumerate(P) if q.truth[i] == "1"])
+            fr_ = set().union(*[roots(p) for i, p in enumerate(P) if q.truth[i] == "0"])
+            clue = ((roots(Q) - DOM_ROOTS) & tr_) - fr_
+            if clue: block.append(f"{q.id}: mot de l'énoncé repris seulement dans les bonnes réponses (R7) {sorted(clue)} : {Q}")
+        # X3 : mots techniques sans entrée de glossaire, y compris dans les définitions affichées (signalés)
+        segs = [q.q, *P, q.expl, *map(str, q.why), q.x or ""]
+        txt3 = " ".join(segs)
+        nd = set().union(*map(a_definir, segs))
+        for t_, d_, s_ in gloss(txt3): nd |= a_definir(d_)
+        if nd: report["X3_termes_sans_definition"].append(f"{q.id}:{sorted(nd)}")
+        gq = gloss(txt3)
+        dup = [f"{t1} ≈ {t2}" for t1, d1, _ in gq for t2, _d, _ in gq if t1 != t2 and t1.isupper() and d1.lower().startswith(t2.lower())]   # sigle qui redéfinit un terme affiché
+        if dup: report["X3_doublons_glossaire"].append(f"{q.id}:{dup}")
+        if q.expl.count(";") >= 2 and "<br>" not in q.expl: report["X1_liste_sur_une_ligne"].append(q.id)   # R-28 : une ligne par élément
+        if q.ok: report["exceptions"].append(f"{q.id}:{q.ok}")
+    # R5 : un attribut souligné seul (gravité, terrain…) vaut pour plusieurs maladies : souligner aussi le sujet
+    for q in QS:
+        und = re.findall(r"<u>(.*?)</u>", q.q)
+        if len(und) == 1 and re.match(ATTRIBUTS, strip(und[0]), re.I) and "R5" not in q.ok:
+            block.append(f"{q.id}: attribut souligné sans son sujet (R5) : {strip(qtext(q))}")
     # soulignement des mots discriminants
     toks = {q.id: re.findall(r"\w+", strip(qtext(q)).lower()) for q in QS}
     for i, q in enumerate(QS):
@@ -189,7 +262,11 @@ def importance(q):
 
 block, report, cov = checks()
 if block:
-    print("BLOQUANT :", len(block)); print("\n".join(block)); sys.exit(1)
+    print("BLOQUANT :", len(block)); print("\n".join(block))
+    par = collections.defaultdict(set)   # nombre de cartes bloquées par règle
+    for b in block: par[(re.findall(r"\(([A-Z]\d+)", b) or ["autre"])[-1]].add(b.split(":")[0])
+    print("Cartes bloquées par règle :", {r_: len(v) for r_, v in sorted(par.items())})
+    sys.exit(1)
 
 # ---------- statistiques ----------
 N = len(QS)
@@ -232,14 +309,14 @@ for q in QS:
         fn = f"{PREFIX}_{nm}.jpg"; im.save(os.path.join(OUT, "media", fn), quality=88); crops[q.id] = fn
 
 # ---------- règles du skill appliquées (D55) ----------
-SKILL_VERSION = "1.7"
+SKILL_VERSION = "1.8"
 ORDRE = "S P C F R V M E X G".split()
 def regles(q, g):
-    r = {"S1", "R1", "R8", "M1", "M3", "X1"}
+    r = {"S1", "R1", "R7", "R8", "M1", "M3", "M12", "X1"}
     r.add({1: "F1", 2: "F2", 0: "F3"}[q.mode])
     if q.mode == 1: r.add("F5")
-    if getattr(q, "titre", None): r.add("R11")
-    if all(";" in p for p in q.props): r.add("M8")
+    if getattr(q, "titre", None) or q.vign: r.add("R11")
+    if all(len(parts(p)) >= 2 for p in q.props): r |= {"M8", "M11"}
     if "répartition" in q.q.lower(): r.add("M9")
     if q.vign: r |= {"V1", "V2"}
     if q.dz: r |= {"E1", "P7"}
@@ -248,7 +325,7 @@ def regles(q, g):
     if q.w: r.add("S3")
     if "<u>" in q.q: r.add("R5")
     if g: r.add("X3")
-    if any("<a href" in x for x in g): r.add("S8")
+    if any(u for _t, _d, s in g for _a, u in s): r.add("S8")
     if q.img: r.add("G2")
     if any(re.search(r"\d", p) for p in q.props): r.add("M4")
     if q.id.startswith("V") or re.search(r"d[ée]finition", q.q, re.I): r |= {"M5", "C3"}
@@ -259,12 +336,20 @@ def fields(q):
     pg = pages(q)
     pr = f"p. {pg[0]}" if len(pg) == 1 else (f"p. {pg[0]}-{pg[-1]}" if pg == list(range(pg[0], pg[-1] + 1)) else "p. " + ", ".join(map(str, pg)))
     info = [q.expl]
+    # X1 : une ligne par proposition, citée avec sa justification
+    info.append("<br>".join(f"{'✔' if q.truth[i] == '1' else '✘'} <b>{strip(p)}</b> — {w_}" for i, (p, w_) in enumerate(zip(q.props, q.why))))
     for i, why in sorted(q.dz.items()):
         info.append(f"⛔ Erreur dangereuse : « {q.props[i]} » — {why}.")
     if q.x: info.append(q.x)
-    g = gloss(" ".join([q.q, *q.props, q.expl, q.x or ""]))  # termes de l'énoncé, des propositions et de l'explication (D50)
-    if g: info.append("<b>Glossaire</b><br>" + "<br>".join(g))
+    g = gloss(" ".join([q.q, *q.props, q.expl, *map(str, q.why), q.x or ""]))  # termes de l'énoncé, des propositions et de l'explication (D50)
+    refs = []   # R-27 : sources numérotées dans le glossaire, liste en fin de champ
+    def num(s):
+        if s not in refs: refs.append(s)
+        return str(refs.index(s) + 1)
+    if g: info.append("<b>Glossaire</b><br>" + "<br>".join(f"<i>{t}</i> : {d}<sup>{','.join(num(s) for s in src)}</sup>" for t, d, src in g))
+    info = ['<div style="text-align:left">' + "<br><br>".join(x for x in info if x) + "</div>"]   # X3 : aligné à gauche (débordement si centré)
     info.append("<br>".join(f'<img src="{img_name(p)}">' for p in pg))
+    if refs: info.append("<small>" + "<br>".join(f'{i}. <a href="{u}">{a}</a>' if u else f"{i}. {a}" for i, (a, u) in enumerate(refs, 1)) + "</small>")
     src = [f"{TYPE} — {PDFNAME}, {pr}"] + list(q.w) + [f"Généré par Claude ({MODEL}) — skill v{VERSION} — {DATE} — {q.id}",
                                                        f"Règles du skill qcm-anki-ifsi v{SKILL_VERSION} : {regles(q, g)}"]
     f = {"Question": f"<b>{qtext(q)}</b>{SUFFIX[q.mode]}" + (f'<br><img src="{crops[q.id]}">' if q.id in crops else ""),
@@ -319,5 +404,5 @@ for q, f, pg, imp_ in rows:
 for c in ws2[1]: c.font = Font(bold=True)
 ws2.freeze_panes = "A2"
 wb.save(os.path.join(OUT, BASENAME + " - couverture.xlsx"))
-json.dump(stats, open(os.path.join(OUT, "stats.json"), "w"), ensure_ascii=False, indent=1)
+json.dump(stats, open(os.path.join(OUT, "stats.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print("apkg", os.path.getsize(apkg) // 1024, "Ko")
