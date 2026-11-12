@@ -227,7 +227,8 @@ def checks():
         for t_, d_, s_ in gloss(txt3): nd |= a_definir(d_)
         if nd: report["X3_termes_sans_definition"].append(f"{q.id}:{sorted(nd)}")
         gq = gloss(txt3)
-        dup = [f"{t1} ≈ {t2}" for t1, d1, _ in gq for t2, _d, _ in gq if t1 != t2 and t1.isupper() and d1.lower().startswith(t2.lower())]   # sigle qui redéfinit un terme affiché
+        dup = [f"{t1} ≈ {t2}" for t1, d1, _ in gq for t2, d2, _ in gq if t1 != t2 and t1.isupper()   # sigle et terme complet qui se définissent l'un l'autre
+               and d1.lower().startswith(t2.lower()) and re.search(rf"\b{re.escape(t1)}\b", d2)]
         if dup: report["X3_doublons_glossaire"].append(f"{q.id}:{dup}")
         if q.expl.count(";") >= 2 and "<br>" not in q.expl: report["X1_liste_sur_une_ligne"].append(q.id)   # R-28 : une ligne par élément
         if q.ok: report["exceptions"].append(f"{q.id}:{q.ok}")
