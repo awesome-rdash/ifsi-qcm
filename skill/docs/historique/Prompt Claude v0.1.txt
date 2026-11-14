@@ -1,0 +1,236 @@
+# PROMPT DE CRÉATION DE CARTES ANKI - VERSION FINALE
+
+## PRÉAMBULE
+**Profil** : Étudiant infirmier (IFSI).  
+**Enseignements** :
+- Cours magistraux (CM) majoritairement délivrés par la faculté de médecine.
+- Travaux dirigés (TD/TPG) pilotés par des formateurs IFSI, centrés sur les attendus du métier d'infirmier.
+
+**Finalités** : Compréhension des TD, préparation des stages, et évaluations semestrielles (par la faculté de médecine).
+**Besoins** : Créer des cartes Anki pour ancrer les notions théoriques (et certaines issues de TD).
+
+## PROBLÉMATIQUE
+**Problème principal** : Les CM de médecine sont trop denses et souvent au-delà du niveau requis pour un infirmier ; temps personnel limité.  
+**Constat actuel** : ≈ 1 h 30 de travail perso par 1 h de CM pour tout comprendre (recherches + fichage manuel) → insoutenable et non attendu pour l'IFSI. L'IA à pour but de prémacher le travail de création de cartes.
+**Stratégie cible (workflow)** :
+- Lecture/écoute rapide du CM.
+- Compréhension macro (grandes lignes).
+- Création de cartes Anki
+
+## PROCESSUS EN DEUX PHASES
+
+### PHASE 1 : ANALYSE ET DIALOGUE (OBLIGATOIRE)
+Avant toute génération de cartes, tu dois :
+
+1. **Analyser le contenu complet** du PDF et des notes
+2. **Identifier** :
+   - Les concepts principaux et leur importance relative
+   - Les tableaux/figures avec beaucoup de données (nécessitent-ils toutes des cartes ?)
+   - Les points ambigus ou nécessitant clarification
+   - Les éléments qui semblent manquer ou être incohérents
+3. **Me présenter** :
+   - Un résumé structuré du contenu analysé
+   - Les points NON couverts par ce prompt ou nécessitant ma décision
+   - Tes interrogations sur certains contenus
+   - Ton besoin d'informations complémentaires
+   - Les incohérences détectées
+   - Ta proposition d'organisation des cartes (combien, quels regroupements, quelles priorités)
+   - Les cas où tu hésites entre séparer ou regrouper des éléments
+   - Tes doutes sur l'utilité d'une information en tant qu'infirmier ou pour l'examen
+   - Le contenu des deux variables UE et Cours
+4. **Attendre ma validation et mes compléments** avant de passer à la phase 2
+
+### PHASE 2 : GÉNÉRATION DES CARTES
+Uniquement après validation, générer les cartes selon les règles ci-dessous.
+
+## VARIABLES (À METTRE À JOUR À CHAQUE COURS)
+[UE] = (à définir selon le cours)  
+[Cours] = (à définir selon le document)
+
+## OBJECTIF
+**Tâche** : Générer des cartes Anki à partir :
+- du PDF de cours fourni (source principale),
+- et des notes éventuellement jointes (source complémentaire).
+
+**Portée** : Extraire exclusivement ce qui est présent dans ces documents (ne rien inventer).  
+**Cible** : Ne retenir que les notions importantes pour un infirmier (priorité "utile pratique/examen/TD"), formulées courtes, claires, testables pour la révision espacée.
+
+## SOURCES – HIÉRARCHIE
+1. **Référence primaire** : PDF du cours.
+2. **Notes jointes** : compléments explicatifs/pratiques SANS contredire le PDF.
+3. **En cas de conflit notes vs PDF** → Demander à l'issue de la phase 2
+4. **Interdit sans accord manuel après phase 1** : ajouter du contenu hors PDF/notes (ne rien inventer).
+
+## PRINCIPE FONDAMENTAL DE SÉPARATION
+**Règle d'or** : Une carte = Une récupération précise en mémoire.
+
+Chaque carte doit tester UN élément spécifique. L'apprenant doit savoir exactement ce qu'il cherche en mémoire. 
+
+**Par défaut** : TOUJOURS séparer en cartes distinctes
+- Valeurs différentes d'un même paramètre (PAS et PAD = 2 cartes)
+- Caractéristiques multiples d'un concept (définition ET indication = 2 cartes)
+- Étapes d'un processus testables individuellement
+- Items d'une liste qui ont chacun leur importance propre
+
+**Exception** : Garder ensemble UNIQUEMENT si :
+- Les éléments forment une unité conceptuelle indissociable
+- Ils sont toujours mobilisés ensemble dans la pratique
+- La mémorisation de l'un sans l'autre serait dangereuse ou inutile
+- Dans ce cas, OBLIGATOIREMENT indiquer `[N éléments]` dans la question
+
+## TYPES DE CARTES
+
+### Basic Card
+**Usage** : Question/Réponse standard (majorité des cartes).  
+**Principe** : 1 carte = 1 idée = 1 récupération en mémoire.
+
+### Cloze Card  
+**Usage** : Listes de plus de 3 éléments liés, ou séquences où l'ordre est crucial.  
+**Format strict** : `{{c1::TEXTE À CACHER::INDICE}}`
+- Index c1…cN au sein d'une carte.
+- Réinitialiser à c1 pour la carte suivante.
+- **INDICES SPÉCIFIQUES OBLIGATOIRES** : Chaque indice doit être explicite et orienter vers la réponse précise.
+  - Mauvais : "exception" répété pour chaque item
+  - Bon : contexte/situation spécifique où s'applique chaque exception
+  - Exemple bactéries : Au lieu de "type", utiliser "bactérie ayant besoin d'environ 21% d'oxygène" pour aérobie
+- Pas de limite au nombre d'éléments tant qu'ils sont vraiment liés
+
+## CONTEXT STAMP
+
+Chaque carte doit commencer par un tampon de contexte adapté au domaine.
+
+### Format flexible
+Le format peut être simplifié selon le contexte, tant qu'il n'y a AUCUNE ambiguïté possible avec d'autres questions et d'interférence avec d'autres matières.
+
+Format complet : `<DOMAINE> : <THÈME> [<RÉF>] — <SOUS-THÈME> — <aspect à tester> [N éléments/type] ?`
+
+Format simplifié acceptable si non ambigu : <DOMAINE> : <THÈME> - <CONCEPT> — <aspect à tester> [N éléments/type] ?`
+
+### Précisions importantes
+- Être spécifique sur le domaine (ex: "Droit du patient" plutôt que juste "Droit")
+- Si un numéro d'article juridique apparaît dans la question, il NE DOIT PAS être dans la réponse
+- Adapter selon la matière :
+  - **Sciences** : Ajouter unités et conditions
+  - **Droit** : Référence légale si pertinente (mais pas si elle est la réponse)
+  - **Clinique** : Contexte (urgence, routine, population spécifique)
+- Si plusieurs réponses attendus (exemples : séparation par des virgules, points virgules ou et/ou), toujours préciser N
+
+## GESTION DES QUESTIONS SIMILAIRES
+
+Pour éviter les ambiguïtés quand une même question pourrait s'appliquer à plusieurs sujets (ex: médicaments) :
+
+### Stratégies possibles
+1. **Inverser la question** : Au lieu de "Quel médicament est antalgique ?" → "Quelle est la classe du doliprane ?"
+2. **Ajouter du contexte discriminant** : "Antalgique palier I, hépatotoxique à forte dose — médicament ?"
+3. **Préciser la situation clinique** : "Antalgique première intention pour céphalée légère — molécule ?"
+4. **Utiliser des caractéristiques uniques** : Mécanisme d'action, contre-indication spécifique, forme galénique particulière
+
+Le choix de stratégie sera discuté en Phase 1 selon le contenu.
+
+## RÈGLES DE FORMULATION
+
+### Respect des 20 règles de Wozniak (1999)
+Base théorique fondamentale de la mémorisation espacée.
+
+### Règles essentielles
+1. **Une carte = une idée**
+2. **Énoncé sans ambiguïté** avec indication du type/nombre de réponses attendues
+3. **Anti-fuite** : Aucun mot de la question ne doit révéler la réponse
+4. **Listes** : ≤3 éléments en Basic avec `[N éléments]`, >3 en Cloze
+5. **Séparateur** pour réponses multiples : ` ; ` (point-virgule + espace)
+6. **Unicité** des questions sur l'ensemble du système
+
+### Longueurs
+- **Question** : 40-150 caractères idéalement (max 250)
+- **Réponse** : Viser <100 caractères. Maximum 150 si absolument nécessaire sans perte de sens
+- **Contexte complémentaire** : Sans limite, ajouter ce qui aide la compréhension
+
+## CONDITIONS – ANCRE SÉMANTIQUE
+
+Toute condition numérique/temporelle doit être ancrée :
+- Correct : "— [délai ; si dossier > 5 ans depuis dernière visite] ?"
+- Incorrect : "— [si > 5 ans] ?" (de quoi ?)
+
+## PRIORISATION
+
+### P1 – Indispensable
+- Sécurité : Contre-indications absolues, seuils d'alerte
+- Fondamental : Définitions essentielles, critères diagnostiques
+- Urgence : Conduites à tenir immédiates
+- Valeurs/constantes critiques
+
+### P2 – Important
+- Pratique courante
+- Exceptions fréquentes
+- Applications standards
+- Pièges classiques
+
+### P3 – Complémentaire
+- Historique, éponymes
+- Cas rares
+- Détails théoriques fins
+- Culture générale du domaine
+
+Note : Les cartes P3 restent utiles pour l'apprentissage par association et peuvent être filtrées dans Anki si besoin.
+
+## EXTRACTION DES FIGURES/TABLEAUX
+
+Extraire le texte lisible MAIS :
+- Analyser la pertinence de chaque donnée
+- Pour les gros tableaux : identifier l'essentiel vs le détail
+- Proposer en Phase 1 quelles données transformer en cartes
+- Les constantes/normes importantes → cartes obligatoires
+- Les détails rares → discussion en Phase 1
+
+## CHAMPS OBLIGATOIRES
+- **Question 1** : L'énoncé
+- **Réponse 1** : La réponse minimale
+- **Informations complémentaires** : Contexte utile (optionnel)
+- **Sources** : [Source] - Nom du fichier et page où a été trouvé l'information
+- **Contexte** : [UE]
+- **Priorité** : P1, P2 ou P3
+
+## FORMAT DE SORTIE
+Fichiers XLSX
+Nom : `[UE] - Cours - TYPE - YYYY-MM-DD.tsv`
+- TYPE ∈ {Basic Card, Cloze Card}
+
+Sections organisées avec : `# --- NOM DE SECTION ---`
+
+## EXEMPLES UNIVERSELS
+
+### Biologie - Séparation obligatoire et type de réponse attendu (plage)
+**Carte 1 (P1):**  
+Q : "Physio : Pression artérielle systolique — normale adulte repos [plage] ?"  
+R : "120-129 mmHg"
+
+**Carte 2 (P1):**  
+Q : "Physio : Pression artérielle systolique — normale adulte repos [plage] ?"  
+R : "80-84 mmHg"
+
+### Droit - Groupement justifié
+Q : "Droit du patient : Consentement aux soins — [3 exceptions] ?"  
+R : "Urgence vitale ; Impossibilité d'informer ; Refus patient"
+
+### Droit - N éléments
+Q : "Droits de l'Homme — définition - [3 critères clés] ?"  
+R : "Ensemble des droits fondamentaux, inaliénables et universels inhérents à chaque être humain"
+
+### Général - Ne pas trop résumer
+Q générée : "Droit patient : information — principe général ?
+Q corrigée : "Droit patient : droit à l'information — principe général ?"
+
+### Pharmacologie - Inversion de question
+Q : "Pharmaco : Paracétamol — [classe thérapeutique] ?"  
+R : "Antalgique-antipyrétique"
+
+### Microbiologie - Cloze avec indices spécifiques
+Q : "Bactériologie : Classification selon O2"  
+R : "{{c1::Aérobie stricte::besoin ~21% O2}} ; {{c2::Anaérobie stricte::O2 toxique}} ; {{c3::Aéro-anaérobie facultative::survie avec ou sans O2}}"
+
+## TESTS AVANT VALIDATION
+- [ ] Chaque carte teste UN seul élément OU indique le nombre attendu
+- [ ] Aucune ambiguïté possible entre questions
+- [ ] Indices des Cloze sont spécifiques et orientants
+- [ ] Priorités cohérentes avec l'usage pratique
+- [ ] Pas d'information inventée

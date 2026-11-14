@@ -1,0 +1,187 @@
+--- "Prompt Claude v1.1 - QCM.md"	2026-11-10 15:47:24.775317759 +0100
++++ "Prompt Claude v1.2 - QCM.md"	2026-11-10 18:14:47.698021483 +0100
+@@ -1,10 +1,12 @@
+-# PROMPT DE GÉNÉRATION DE QCM ANKI — v1.1
++# PROMPT DE GÉNÉRATION DE QCM ANKI — v1.2
+ 
+-> À utiliser à chaque génération. Remplace les prompts v0.1 / v0.2 (cartes Basic/Cloze) et v1.0.
++> À utiliser à chaque génération, **pour tout cours et toute UE**. Remplace les prompts v0.1 / v0.2 (cartes Basic/Cloze), v1.0 et v1.1.
++> Toutes les consignes sont **générales** ; les exemples viennent de domaines variés et ne doivent pas orienter le contenu d'un cours particulier.
+ > Historique :
+ > - v1.0 (2026-11-10) création.
+ > - v1.0a (2026-11-10, test CM6 AVC) : vérifications web en phase 1 ; traçabilité des modifications et avertissements ; chiffres diapo/notes distincts ; numérotation INC-/Q-/D- ; livraison .apkg (type QCMs + images) ; contrôle de couverture bloquant ; propositions mélangées par l'add-on ; noms d'images en minuscules ; recadrage des clichés d'imagerie ; glossaire ; vocabulaire non défini ; distracteurs chiffrés proches ; GUID stables. Retour d'expérience : estimation de phase 1 à 180 questions, résultat 267-293 → estimer à partir de l'inventaire détaillé.
+ > - v1.1 (2026-11-10) : bonnes pratiques de rédaction (NBME, Haladyna, guides de docimologie, EDN) : Kprim conservé en format minoritaire (variété, absent des examens de la fac) ; répartition des formats ; vignettes cliniques crédibles ; longueur de la bonne réponse ; termes absolus ; distracteurs ciblant une confusion ; erreurs dangereuses ⛔ ; phase 2b de relecture par un agent séparé ; contrôles automatiques ; analyse après usage.
++> - v1.2 (2026-11-10, retours sur téléphone) : Contexte / Titre / Question sans répétition ; question en gras, titre discret (réglage du modèle de carte) ; mot discriminant souligné ; consignes et exemples rendus généraux (plus centrés sur un seul cours) ; en-têtes Kprim « Vrai / Faux ».
+ > Exécution prévue : Claude avec accès au dossier `G:\Mon Drive\FOR\IFSI` (lecture des PDF, rendu des pages en image, écriture des fichiers d'import).
+ 
+ ---
+@@ -47,7 +49,7 @@
+ |---|---|---|
+ | **I0** | À connaître **par cœur**, rappel **instinctif** pour tout étudiant infirmier, quel que soit le service. | Normes des constantes, signes d'alerte d'une urgence vitale, gestes et réflexes de sécurité, définitions fondamentales, règles d'administration, contre-indications majeures. |
+ | **I1** | Important pour tout infirmier, mais on peut prendre **quelques secondes à quelques dizaines de secondes** pour s'en rappeler. | Mécanismes physiopathologiques de base, principaux examens et leur but, complications fréquentes, surveillance infirmière courante. |
+-| **I2** | Connaissance **de spécialité** : indispensable dans un service donné (stage de cardio, neuro, pneumo…), non attendue ailleurs (ex. EHPAD). | Délais de thrombolyse en neuro, scores spécifiques d'un service, traitements spécialisés, surveillance spécifique. |
++| **I2** | Connaissance **de spécialité** : indispensable dans un service donné (stage de cardio, neuro, pneumo…), non attendue ailleurs (ex. EHPAD). | Délais d'un traitement d'urgence spécialisé, scores propres à un service, traitements spécialisés, surveillance spécifique (ex. surveillance post-coronarographie en cardio). |
+ | **I3** | Spécifique à l'**UE et à l'examen à venir** ; pas besoin de la réviser entre les examens. | Chiffres épidémiologiques précis, détails anatomiques fins, éponymes, classifications détaillées, détails cités « pour l'examen ». |
+ 
+ Règles :
+@@ -65,7 +67,7 @@
+ 1. Lire **intégralement** le PDF : texte de chaque page **et** rendu visuel de chaque page (diapos, schémas, tableaux, imagerie), ainsi que les notes jointes.
+ 2. Présenter à l'étudiant :
+    - **Variables du cours** proposées : `[UE]`, `[Cours]`, `[Type de cours]` (CM SSU / CM IFSI / TD), `[Contexte]`, `[Paquet]`, `[Spécialité]`.
+-     Format du paquet : `IFSI::QCM::Semestre <n>::UE <n°> - <intitulé UE>::<Cours>` (ex. `IFSI::QCM::Semestre 3::UE 2.8 - Processus obstructifs::CM6 - AVC`).
++     Format du paquet : `IFSI::QCM::Semestre <n>::UE <n°> - <intitulé UE>::<Cours>` (ex. `IFSI::QCM::Semestre 3::UE 2.8 - Processus obstructifs::CM6 - AVC` ; `IFSI::QCM::Semestre 2::UE 2.11 - Pharmacologie et thérapeutiques::CM2 - Anticoagulants`).
+    - **Résumé structuré** du cours (plan par sections, avec n° de pages).
+    - **Inventaire des connaissances** par section, avec l'**importance proposée** (I0–I3), sous forme de tableau compact.
+    - **Estimation du nombre de questions**, au total et par importance, **calculée à partir de l'inventaire détaillé** (aucune limite a priori).
+@@ -163,15 +165,27 @@
+ 
+ ## 7. RÉDACTION
+ 
++### Contexte, Titre, Question : trois niveaux, aucune répétition
++Le recto affiche, dans l'ordre : `Contexte` (le cours), `Titre` (la partie du cours), `Question`. Chaque niveau apporte une information **nouvelle** :
++- **Contexte** : le cours (cf. format ci-dessous). Ne pas le répéter ailleurs.
++- **Titre** : la **section** du cours, suivie de la **notion** seulement si elle est différente de la section : `<Section>` ou `<Section> — <Notion>`. **Jamais** le nom du cours ni un mot déjà présent dans le Contexte.
++- **Question** : uniquement ce qui est demandé, **sans reprendre** le nom du cours ni les mots du Titre (sauf le mot testé lui-même, ex. le nom d'un lobe ou d'un médicament).
++- Exemples :
++  - ✗ Titre « AVC — Épidémiologie — Épidémiologie » + Question « AVC en France — épidémiologie »
++  - ✓ Titre « Épidémiologie » + Question « Rang parmi les causes de décès et de démence en France ? »
++  - ✓ Titre « Anticoagulants — Surveillance » + Question « Examen biologique de surveillance d'un traitement par <u>AVK</u> ? »
++- Contrôle automatique : un même mot significatif (≥ 5 lettres, hors mots outils) présent dans deux des trois niveaux est signalé et corrigé.
++
+ ### Question (énoncé)
+ - Courte (fait isolé) ou longue (**vignette clinique**) ; peut contenir une **image** quand l'image est le support de la question (cf. §8).
+-- Commence par un **contexte** non ambigu : `<Thème> — <aspect testé>` (ex. « AVC ischémique — Thrombolyse : délai maximal après le début des symptômes ? »). Une forme courte de type étiquette est acceptée (le but est une révision rapide).
+-- Le suffixe de format est ajouté automatiquement : « (une seule réponse) » / « (une ou plusieurs réponses) ».
+-- **Ancre sémantique** : toute condition numérique/temporelle dit de quoi elle parle (« délai depuis le début des symptômes », pas « délai »).
++- **Toute la question est en gras** (`<b>…</b>`) : c'est l'élément principal du recto ; le Titre est affiché de façon discrète (cf. §9, réglage du modèle).
++- **Mot discriminant souligné** (`<u>…</u>`) : quand plusieurs cartes ont un énoncé identique à un mot près (frontal/pariétal, droit/gauche, hypo/hyper, adulte/enfant, AVK/héparine, membre supérieur/inférieur…), ce mot est souligné ; de même pour un mot **décisif** (négation, côté, délai, population, voie d'administration). Un ou deux mots soulignés au maximum par question. Contrôle automatique : les énoncés qui ne diffèrent que d'un ou deux mots doivent avoir ces mots soulignés.
++- Le suffixe de format est ajouté automatiquement : « (une seule réponse) » / « (une ou plusieurs réponses) » / « (vrai ou faux pour chaque affirmation) ».
++- **Ancre sémantique** : toute condition numérique/temporelle dit de quoi elle parle (« délai depuis la dernière prise », « délai depuis le début des symptômes », pas « délai »).
+ - **Anti-fuite** : aucun mot de l'énoncé ne doit se retrouver **seulement** dans la bonne réponse ; pas d'indice grammatical (accord, article) entre l'énoncé et une seule proposition.
+ - **Unicité** : deux questions du paquet ne doivent pas avoir le même énoncé pour des réponses différentes.
+ - Pas de double négation ; une négation éventuelle (« ne fait PAS partie ») en **gras majuscules**, avec des propositions courtes.
+-- HTML autorisé : `<b>`, `<i>`, `<u>`, `<br>`, `<img>`. Mettre en gras l'aspect testé.
++- HTML autorisé : `<b>`, `<i>`, `<u>`, `<br>`, `<img>`.
+ 
+ ### Vignettes cliniques (tester l'application, pas seulement le rappel)
+ - **Objectif** : au moins **40 %** des questions portant sur des connaissances **I0 et I1** sont des vignettes (situation de patient → décision ou interprétation).
+@@ -193,22 +207,22 @@
+ - **Homogènes** : même registre, même nature (4 délais, 4 molécules, 4 signes…).
+ - **La bonne réponse ne se distingue pas par la forme** : **longueur** comparable (entre 0,7 et 1,3 fois la longueur moyenne des mauvaises réponses), **même niveau de précision et de nuance**. Si la bonne réponse a besoin d'une précision, en donner une de même ampleur aux mauvaises réponses. Contrôle automatique.
+ - **Chaque mauvaise réponse cible une confusion identifiée** : chiffre d'une autre diapo, autre type de pathologie, côté inversé, notion voisine, ancienne règle, erreur fréquente d'étudiant. **Test du bon sens** : si un étudiant qui n'a pas suivi le cours peut l'éliminer par simple bon sens, la remplacer. Les mauvaises réponses doivent **ressembler aux bonnes**.
+-- **Distracteurs chiffrés** : valeurs **proches** de la bonne (ex. 10/15/20/25 %, 3 h/4h30/6 h/9 h) ou **mêmes valeurs permutées** pour les listes chiffrées ; jamais une valeur aberrante. Éviter toute valeur juste selon une autre source reconnue (ex. HbA1c < 7 % HAS) ou un autre passage du cours, sauf si l'énoncé précise le contexte.
+-- **Questions de définition** : les distracteurs sont les définitions de **termes proches** (même famille, même préfixe, notions souvent confondues : thrombus/embole/athérome/hématome ; myosis/mydriase ; thrombopénie/thrombophilie/thrombocytose ; ataxie/apraxie/aphasie).
++- **Distracteurs chiffrés** : valeurs **proches** de la bonne (ex. 10/15/20/25 % ; 4/6/8/12 h ; 0,5/1/1,5/2 g ; 3,5/4/5/5,5 mmol/L) ou **mêmes valeurs permutées** pour les listes chiffrées ; jamais une valeur aberrante. Éviter toute valeur juste selon une autre source reconnue (ex. HbA1c < 7 % HAS) ou un autre passage du cours, sauf si l'énoncé précise le contexte.
++- **Questions de définition** : les distracteurs sont les définitions de **termes proches** (même famille, même préfixe, notions souvent confondues, ex. : hypoxie/hypoxémie/hypercapnie ; dyspnée/dysphagie/dysphonie ; oligurie/anurie/dysurie ; tachycardie/tachypnée/tachyarythmie ; hypokaliémie/hyperkaliémie/hyponatrémie ; thrombus/embole/hématome ; myosis/mydriase).
+ - **Termes absolus** (« toujours », « jamais », « systématique », « uniquement », « tous », « aucun ») : autorisés, y compris comme **pièges légitimes**, mais **pas comme indice** :
+-  - à l'échelle du paquet, ils doivent apparaître aussi dans des propositions **vraies** (ex. « Jamais de sérum glucosé », « Pas de sondage systématique ») ;
++  - à l'échelle du paquet, ils doivent apparaître aussi dans des propositions **vraies** (ex. « Jamais de KCl en IV directe », « Pas de sondage urinaire systématique ») ;
+   - dans une même question, un terme absolu présent **uniquement** dans les mauvaises réponses doit être justifié (piège classique du cours) ; le contrôle automatique liste ces cas, la phase 2b les revoit.
+ - **Termes de fréquence vagues** (« souvent », « parfois », « rarement », « peut ») : à éviter dans les propositions ; les remplacer par un chiffre, une condition ou une comparaison.
+ - Interdits : « toutes les réponses », « aucune réponse », propositions absurdes ou humoristiques.
+ - Une proposition vraie l'est **dans le cadre du cours** ; si elle dépend d'une nuance, la préciser (et nuancer de la même façon les autres propositions).
+ 
+ ### Erreurs dangereuses ⛔
+-- Une mauvaise réponse qui, appliquée en pratique, **mettrait le patient en danger** (équivalent des propositions « inacceptables » de l'EDN) est signalée dans les Informations complémentaires : `⛔ Erreur dangereuse : « <proposition> » — <pourquoi>` (ex. aspirine avant l'imagerie, sérum glucosé dans l'AVC, alimentation avant le test de déglutition, normaliser la PA à 120/80 dans l'infarctus).
++- Une mauvaise réponse qui, appliquée en pratique, **mettrait le patient en danger** (équivalent des propositions « inacceptables » de l'EDN) est signalée dans les Informations complémentaires : `⛔ Erreur dangereuse : « <proposition> » — <pourquoi>` (ex. injecter du chlorure de potassium en IV directe, administrer de l'insuline sans contrôle glycémique, faire boire un patient dont la déglutition n'a pas été évaluée, injecter par voie IV un produit prévu pour la voie SC, donner un AINS à un patient sous anticoagulant sans avis médical).
+ - La question est alors classée **I0** (cf. §3).
+ - Inclure de telles propositions **volontairement** pour les gestes de sécurité du cours (ce sont les pièges les plus utiles pour un futur infirmier).
+ 
+ ### Titre
+-- Court, sans la réponse : `<Cours> — <section> — <notion>` (ex. « AVC — Prise en charge en urgence — Thrombolyse »). Le titre est affiché au recto.
++- Court, sans la réponse, **sans le nom du cours** : `<Section>` ou `<Section> — <Notion>` si la notion diffère de la section (ex. « Prise en charge en urgence — Reperfusion », « Surveillance », « Effets indésirables — Hypokaliémie »). Affiché au recto, de façon discrète (cf. §9).
+ 
+ ### Informations complémentaires
+ - **Explication** : le point clé à retenir (en citant l'affirmation du cours), puis pourquoi chaque proposition fausse est fausse quand ce n'est pas évident, en citant la proposition par son texte (jamais par son numéro, cf. §6).
+@@ -220,19 +234,19 @@
+ - **Image de la page entière** du PDF d'où vient la connaissance (cf. §8).
+ 
+ ### Sources
+-- Format (celui de la collection) : `<Type de cours> — <nom du fichier PDF>, p. <n>` (ex. `CM SSU — CM6 AVC.pdf, p. 13`) ; plusieurs pages : `p. 12-13` ; notes : `Notes perso (OneNote) — <titre>`.
++- Format (celui de la collection) : `<Type de cours> — <nom du fichier PDF>, p. <n>` (ex. `CM SSU — CM4 Insuffisance cardiaque.pdf, p. 13`) ; plusieurs pages : `p. 12-13` ; notes : `Notes perso (OneNote) — <titre>`.
+ - Source web : `Web — <Organisme>, <titre>, <URL>` (une par ligne, `<br>` entre les lignes).
+ - Dernière ligne : `Généré par Claude (<modèle>) — prompt v<version> — <AAAA-MM-JJ> — <id question>`.
+ 
+ ### Contexte
+-- Format de la collection : `IFSI - UE <n° UE> <intitulé UE> - <type de cours> <intitulé du cours>` (ex. `IFSI - UE 2.8 Processus obstructifs - CM SSU AVC`). Affiché au recto : ne contient jamais la réponse.
++- Format de la collection : `IFSI - UE <n° UE> <intitulé UE> - <type de cours> <intitulé du cours>` (ex. `IFSI - UE 2.11 Pharmacologie et thérapeutiques - CM IFSI Anticoagulants`). Affiché au recto : ne contient jamais la réponse.
+ 
+ ---
+ 
+ ## 8. IMAGES
+ 
+ - **Informations complémentaires** : toujours la **page entière** du PDF d'où vient la connaissance, en JPEG ~150 dpi. Une page = un seul fichier, réutilisé par toutes les questions qui en dépendent.
+-- Noms de fichiers uniques et stables, **en minuscules** (Anki met les noms de médias en minuscules ; une majuscule casse le lien), sans espaces ni accents : `<ue>_<cours>_p<NNN>.jpg` (ex. `ue2-8_cm6-avc_p013.jpg`).
++- Noms de fichiers uniques et stables, **en minuscules** (Anki met les noms de médias en minuscules ; une majuscule casse le lien), sans espaces ni accents : `<ue>_<cours>_p<NNN>.jpg` (ex. `ue2-11_cm2-anticoagulants_p013.jpg`).
+ - **Question** : une image de page entière seulement si elle ne contient pas la réponse (légendes, titres de diapo).
+ - **Questions d'imagerie** (scanner, IRM, ARM, ECG, radio, schéma à légender…) : **recadrage autorisé** sur le cliché seul, depuis l'image source intégrée au PDF (meilleure résolution), en excluant titres, légendes et annotations textuelles qui donnent la réponse (une flèche sans texte peut rester). Vérifier visuellement chaque recadrage. Nom : `<ue>_<cours>_img-<description>.jpg`. Ne pas utiliser un cliché coupé ou illisible.
+ 
+@@ -255,6 +269,16 @@
+ | 12–19 | Réponse 5 à Réponse 12 | vides |
+ | 20 | Tags | `PSB::Importance::I0` … `I3` |
+ 
++**Réglage du modèle de carte QCMs** (à faire **une fois** par l'étudiant dans Anki sur PC : Outils → Gérer les types de notes → QCMs → Cartes ; s'applique à toutes les cartes QCMs) :
++- *Style* — ajouter à la fin :
++  ```css
++  #myH1 { font-weight: normal; font-size: 16px; color: #555; }
++  #myH1 + p { font-weight: bold; }
++  ```
++  (titre discret, question en gras même sans balise `<b>`).
++- *Modèle recto* — en-têtes Kprim en français : remplacer `<tr><th>yes</th><th>no</th><th></th></tr>` par `<tr><th>Vrai</th><th>Faux</th><th></th></tr>`.
++- Ne **jamais** modifier ce type de note depuis le paquet généré (il est partagé avec les autres paquets de l'étudiant).
++
+ **Livrable principal : un paquet Anki `.apkg`** contenant les notes **et les images** (Anki range lui-même les images dans `collection.media` ; double-clic pour importer).
+ - Le paquet réutilise **exactement** le type de note `QCMs` de l'étudiant (id `1604570191317`). Référence : `G:\Mon Drive\FOR\IFSI\Anki\Prompts\Type de note QCMs.apkg`.
+ - Construction (bibliothèque Python `anki` ; scripts de référence dans `Anki\Prompts\Outils\`) : nouvelle collection → import du `.apkg` de référence → suppression de la note exemple → ajout des notes dans `[Paquet]` avec le tag d'importance → ajout des images → export `.apkg` avec médias, sans planification.
+@@ -271,27 +295,34 @@
+ 
+ ## 10. EXEMPLES
+ 
++*(Contexte affiché au-dessus de chaque carte, non répété ici. Les exemples sont volontairement pris dans des domaines différents.)*
++
+ **QCS (fait unique)** — Mode `2` — `PSB::Importance::I0`
+-Q : « Paramètres vitaux — <b>Fréquence respiratoire normale</b> de l'adulte au repos ? »
+-R : 8 à 12 /min · **12 à 20 /min** · 20 à 25 /min · 25 à 30 /min *(valeurs proches, pas d'aberration)*
++Titre : « Paramètres vitaux »
++Q : « <b>Fréquence respiratoire normale de l'<u>adulte</u> au repos ?</b> »
++R : 8 à 12 /min · **12 à 20 /min** · 20 à 25 /min · 25 à 30 /min *(valeurs proches, pas d'aberration ; « adulte » souligné car une carte voisine porte sur l'enfant)*
+ 
+ **QCS (liste complète)** — Mode `2` — `PSB::Importance::I0`
+-Q : « Score de Glasgow — <b>3 composantes évaluées</b> ? »
++Titre : « Évaluation neurologique »
++Q : « <b>Les 3 composantes du score de Glasgow ?</b> »
+ R : Ouverture des yeux ; réponse verbale ; réflexe pupillaire · Réponse motrice ; réponse verbale ; réflexe pupillaire · **Ouverture des yeux ; réponse verbale ; réponse motrice** · Ouverture des yeux ; réponse motrice ; tonus musculaire *(chaque élément de la bonne liste apparaît aussi dans les autres)*
+ 
+ **QCM (2 bonnes sur 4)** — Mode `1` — `PSB::Importance::I0`
+-Q : « Hypoglycémie — <b>signes adrénergiques</b> ? »
++Titre : « Hypoglycémie — Signes cliniques »
++Q : « <b>Signes <u>adrénergiques</u> ?</b> »
+ R : **Sueurs** · **Palpitations** · Polyurie · Soif intense
+ Infos : « « Polyurie » et « Soif intense » → faux : signes d'hyperglycémie (confusion hypo/hyper ciblée). »
+ 
+ **Kprim** — Mode `0` — `PSB::Importance::I0`
+-Q : « Paracétamol — vrai ou faux pour chaque affirmation ? »
++Titre : « Antalgiques de palier 1 »
++Q : « <b><u>Paracétamol</u> : vrai ou faux ?</b> »
+ R : **Antalgique de palier 1** (V) · **Antipyrétique** (V) · Anti-inflammatoire aux doses usuelles (F) · **Hépatotoxique en cas de surdosage** (V)
+ 
+ **Vignette (QCS, angle infirmier)** — Mode `2` — `PSB::Importance::I0`
+-Q : « Mme L., 74 ans, admise en UNV pour un infarctus cérébral il y a 2 h, réclame à boire. Le dépistage des troubles de la déglutition n'a pas encore été fait. <b>Que faites-vous ?</b> »
+-R : Lui donner de l'eau gélifiée · Lui donner un verre d'eau en position assise · **La laisser à jeun jusqu'au dépistage** · Lui proposer une compote
+-Infos : « Cours p. 17 : « laisser à jeun jusqu'au dépistage des troubles de la déglutition ». ⛔ Erreur dangereuse : « Lui donner un verre d'eau en position assise » — risque de fausse route et de pneumopathie d'inhalation. »
++Titre : « Hypoglycémie — Conduite à tenir »
++Q : « <b>M. D., 62 ans, diabétique sous insuline, présente des sueurs et des tremblements avant le repas. Il est conscient et avale normalement ; glycémie capillaire : 0,50 g/L. Votre <u>première</u> action ?</b> »
++R : Injecter l'insuline prévue avant le repas · **Resucrage oral (15 g de sucre rapide) puis contrôle de la glycémie à 15 min** · Injection de glucagon en IM · Attendre le repas prévu dans 30 min
++Infos : « Cours p. X : « patient conscient → resucrage per os, contrôle à 15 min ». Le glucagon est réservé au patient inconscient ou qui ne peut pas avaler. ⛔ Erreur dangereuse : « Injecter l'insuline prévue avant le repas » — aggrave l'hypoglycémie. » *(la vignette ne contient que des éléments cohérents avec le cours ; la réponse découle d'une phrase du cours citée)*
+ 
+ ---
+ 
+@@ -302,6 +333,8 @@
+ - [ ] 4 propositions, toutes différentes ; `Réponses` cohérent avec le `Mode` (QCS = un seul `1`, QCM ≥ un `1`, Kprim : 0 à 4 `1`).
+ - [ ] Pas d'énoncé dupliqué ; pas de renvoi à une proposition par son numéro dans les explications.
+ - [ ] Longueur de la bonne réponse (QCS) entre 0,7 et 1,3 fois la longueur moyenne des mauvaises (exception justifiée et listée).
++- [ ] Aucun mot significatif répété entre Contexte, Titre et Question (hors mot testé) ; le Titre ne contient pas le nom du cours.
++- [ ] Question entièrement en gras ; énoncés qui ne diffèrent que d'un ou deux mots → ces mots soulignés ; au plus deux mots soulignés par question.
+ 
+ **Rapportés** (listés dans le rapport de phase 3, revus en phase 2b) :
+ - [ ] Termes absolus présents uniquement dans les mauvaises réponses d'une question ; équilibre vrai/faux des termes absolus sur le paquet.
