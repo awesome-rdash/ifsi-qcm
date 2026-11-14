@@ -37,6 +37,7 @@
 | skill 1.9 | 2026-11-14 | Collèges de médecine comme source : S3 en deux ordres de sources (bonnes réponses : cours → références citées → validation en phase 1 ; tout le reste : Collèges d'abord, web ensuite) ; nouvelles règles S9-S12 ; M3, M4, M10, X1, X5, S8, V1, V2 révisées ; phase 1 : `sources.md` et `refs/` ; `build.py` : sources libellées et triées, citation de Collège contrôlée (D115-D119) | Retours R-55, R-58 à R-62 |
 | skill 1.9.1 | 2026-11-14 | Génération dans **Claude Code sur le PC** (environnement par défaut) : cours et Collèges lus sur place, sans copie ; espace de travail local `%USERPROFILE%\QCM-travail\` ; S9, `fichiers.md` et commandes adaptés à Windows (D120) | Question de l'étudiant sur la copie des PDF |
 | skill 1.10 | 2026-11-14 | Dépôt unique `C:\Git\ifsi-tools` (skill, génération, site) ; skill dans `skill\qcm-anki-ifsi\`, scripts appelés sur place ; espace de travail `qcm-generation\cours\<cours>\` (remplace `QCM-travail` et `Decks\…\sources\`) ; Collèges lus dans la copie locale `qcm-generation\colleges\` ; journal, retours et historique dans `skill\docs\`, plus de copie sur le Drive (D121-D123) | Fusion des dépôts |
+| skill 1.10.1 | 2026-11-14 | Tout se fait dans Claude Code : plus de copie des documents dans le projet Claude « QCM IFSI » (D125) | Remarque de l'étudiant |
 
 ---
 
@@ -184,6 +185,7 @@ Légende de la source : **É** = décision de l'étudiant, **R** = recherche (bo
 | D122 | Collèges : **copie locale** des Collèges découpés dans `qcm-generation\colleges\`, **exclue de git** sauf `_Index des collèges.md` (choix B2) ; avec Claude Code, index et chapitres lus dans cette copie ; dans le cloud, l'original du Drive | Lecture rapide sur le disque local sans versionner plusieurs Go de PDF | É | S9 |
 | D123 | Documents du skill (journal des décisions, documents de retours, historique, journal complet) dans `skill\docs\` du dépôt, avec copie dans le projet Claude « QCM IFSI » ; **plus de copie sur le Drive** (révise D74 et D49) ; fichiers de travail d'un cours dans `qcm-generation\cours\<S<n> - <UE> - <Cours>>\` (remplace `%USERPROFILE%\QCM-travail\`, D120, et `Decks\…\sources\`) ; scripts appelés sur place depuis `skill\qcm-anki-ifsi\scripts\` ; livraison des `.apkg` inchangée sur le Drive | Une seule source à jour, versionnée ; plus de copies à synchroniser à la main | É | Garde-fous, `references/fichiers.md` |
 | D124 | `build.py` écrira directement les données du site (`qcm-website\data\index.json`, `data\<id-cours>\questions.json`, `media\`) ; le site ne convertira plus les `.apkg` et `sync-decks.ps1` deviendra inutile. **Hors de la fusion** : deux sessions, « Skill – conception » (export dans `build.py`, tests) puis « Site QCM » | Une seule conversion, faite là où les données sont produites | É | — (à venir) |
+| D125 | **Tout se fait dans Claude Code** (conception du skill, génération, site) : le dépôt est la seule source des documents ; plus de copie dans le projet Claude « QCM IFSI » (révise D74 et D123) ; les consignes pour une conversation cloud restent en secours | « Je ne vois pas l'intérêt de faire ça sur claude.ai alors qu'on va seulement utiliser Claude Code à partir de maintenant » | É | Garde-fous (`SKILL.md`), `CLAUDE.md` |
 
 ---
 
@@ -250,8 +252,8 @@ Les décisions et le déroulé propres à chaque paquet sont dans le journal du 
 - Atteindre les cibles de vignettes (≥ 40 %) et de formats : autoriser des vignettes tirées de références externes citées, ou baisser les cibles ?
 - Réglage du modèle de carte (CSS « question en gras », « Vrai / Faux ») : à faire par l'étudiant dans Anki.
 - Phase 4 : première analyse des statistiques Anki du paquet AVC, prévue vers fin novembre 2026.
-- Recopier ce journal dans le projet Claude « QCM IFSI » (D74, D123) après chaque modification faite dans Claude Code (qui n'a pas accès au projet) ; dernière copie : 2026-11-14 (D115-D120, skill 1.9.1) — à refaire pour D121-D124, skill 1.10.
-- Régénérer le paquet AVC avec la v1.10, dans Claude Code, puis le paquet BPCO.
+- ~~Recopier ce journal dans le projet Claude~~ : abandonné, tout se fait dans Claude Code (D125) ; la dernière copie du projet date du 2026-11-14 (skill 1.9.1) et n'est plus tenue à jour.
+- Régénérer le paquet AVC avec la v1.10.1, dans Claude Code, puis le paquet BPCO.
 - ~~Intégrer R-55 et R-58 à R-62~~ : fait en skill v1.9 (D115-D119), le 2026-11-14.
 - ~~Commit de la v1.9.1, jonction du skill (D120)~~ : fait le 2026-11-14 avec la fusion (D121) ; importer le zip (`skill\dist\`) dans claude.ai seulement pour les conversations cloud.
 - D124 : export des données du site par `build.py`, puis adaptation du site (deux sessions).
@@ -267,7 +269,7 @@ Les décisions et le déroulé propres à chaque paquet sont dans le journal du 
 |---|---|
 | Dépôt | `C:\Git\ifsi-tools` (GitHub privé `ifsi-tools`) : `skill\`, `qcm-generation\`, `qcm-website\` (D121) |
 | Skill | `C:\Git\ifsi-tools\skill\qcm-anki-ifsi\` (`SKILL.md`, `references\`, `scripts\`) ; Claude Code → `%USERPROFILE%\.claude\skills\qcm-anki-ifsi` (jonction vers ce dossier) ; claude.ai → skills de l'étudiant (import du zip) ; tests dans `skill\tests\` |
-| Ce document | `C:\Git\ifsi-tools\skill\docs\Historique et décisions - QCM Anki IFSI.md` + projet Claude « QCM IFSI » (`claude/QCM Anki - Historique et décisions.md`) ; plus de copie sur le Drive (D123) |
+| Ce document | `C:\Git\ifsi-tools\skill\docs\Historique et décisions - QCM Anki IFSI.md`, seule copie à jour (D123, D125) |
 | Documents de retours (R-xx), analyses | `skill\docs\retours\`, `skill\docs\` |
 | Journal complet de la conversation (toutes les décisions, même petites) | projet Claude « QCM IFSI » (`claude/QCM Anki - Journal complet de la conversation.md`) + `skill\docs\historique\Journal complet - conception skill (2026-11-10 au 12).md` |
 | Scripts | dans le skill (`skill\qcm-anki-ifsi\scripts\`), appelés sur place ; scripts v1.7 dans `skill\docs\historique\Outils v1.7\` ; skill v1.8.1 complet dans `skill\docs\historique\Skill v1.8.1\` |

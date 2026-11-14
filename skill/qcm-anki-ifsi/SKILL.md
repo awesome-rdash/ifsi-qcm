@@ -3,7 +3,7 @@ name: qcm-anki-ifsi
 description: Génère un paquet Anki de QCM (type QCMs, importance I0-I3, images) à partir d'un cours PDF d'IFSI, avec phase d'analyse, relecture indépendante et contrôles. À utiliser pour créer ou corriger des QCM Anki à partir d'un cours.
 ---
 
-# QCM Anki à partir d'un cours IFSI — skill v1.10
+# QCM Anki à partir d'un cours IFSI — skill v1.10.1
 
 ## Rôle
 Produire, à partir d'un cours (PDF de diapos + prises de notes), un **paquet Anki `.apkg` prêt à importer** qui couvre **toutes** les connaissances du cours, classées par importance, et qui soit difficile à réussir par simple ruse.
@@ -17,11 +17,11 @@ L'étudiant est en 2e année d'IFSI et a très peu de temps : le résultat doit 
 
 ## Garde-fous
 - Le **pourquoi** de chaque règle et l'historique sont dans le journal des décisions, `C:\Git\ifsi-tools\skill\docs\Historique et décisions - QCM Anki IFSI.md` (dans le cloud : projet Claude « QCM IFSI », `claude/QCM Anki - Historique et décisions.md`) : le lire en cas de doute sur une règle.
-- **Toute décision prise en conversation y est écrite** (numéro, décision, pourquoi, qui) **avant la fin de la conversation**, dans le journal du dépôt **et** dans le document du projet Claude : rien ne doit reposer sur la seule conversation. Plus de copie sur le Drive. Les petites décisions (organisation, livraison, outils, essais abandonnés) vont, avec leur raison, dans le journal complet (`claude/QCM Anki - Journal complet de la conversation.md`, copie dans `skill\docs\historique\`).
+- **Toute décision prise en conversation y est écrite** (numéro, décision, pourquoi, qui) **avant la fin de la conversation**, dans le journal du dépôt : rien ne doit reposer sur la seule conversation. Ni copie sur le Drive, ni copie dans le projet Claude (D125). Les petites décisions (organisation, livraison, outils, essais abandonnés) vont, avec leur raison, dans le journal complet (`claude/QCM Anki - Journal complet de la conversation.md`, copie dans `skill\docs\historique\`).
 - Dossier de l'étudiant : `G:\Mon Drive\FOR\IFSI` (cours dans `UE\Semestre <n>\…`, paquets livrés dans `Anki\Decks\S<n> - <UE> - <Cours>\`).
 - Les documents du skill (journal, retours, historique) sont dans le dépôt `C:\Git\ifsi-tools\skill\docs\` ; ne plus rien écrire dans `Anki\Prompts\` du Drive.
 - **Environnement** :
-  - **Claude Code sur le PC de l'étudiant (environnement par défaut de la génération)** : lire le cours et les notes **sur place** sur le Drive, l'index et les chapitres de Collège dans la copie locale `C:\Git\ifsi-tools\qcm-generation\colleges\`, sans les copier ; extraire le texte et rendre les pages en image avec `pymupdf`. Espace de travail : `C:\Git\ifsi-tools\qcm-generation\cours\<S<n> - <UE> - <Cours>>\`. Le projet Claude n'est pas accessible : lire les documents du dépôt (journal, documents de retours dans `skill\docs\retours\`) et, en fin de conversation, rappeler à l'étudiant de recopier dans le projet les documents modifiés.
+  - **Claude Code sur le PC de l'étudiant (environnement par défaut de la génération)** : lire le cours et les notes **sur place** sur le Drive, l'index et les chapitres de Collège dans la copie locale `C:\Git\ifsi-tools\qcm-generation\colleges\`, sans les copier ; extraire le texte et rendre les pages en image avec `pymupdf`. Espace de travail : `C:\Git\ifsi-tools\qcm-generation\cours\<S<n> - <UE> - <Cours>>\`. Lire les documents du dépôt (journal, documents de retours dans `skill\docs\retours\`).
   - **Conversation Claude dans le cloud, liée au PC** : copier dans l'espace de travail les seuls fichiers utiles (cours, chapitres de Collège relevés en phase 1), jamais un dossier entier ; fichier de plus de 400 Mo ou dossier dont le nom contient un emoji : demander à l'étudiant de l'ajouter par « + » → « Ajouter un dossier ».
 - Modèle conseillé : Claude Opus (exactitude médicale des mauvaises réponses).
 - Codes des règles : lettre de la section + numéro, **jamais réattribués**. Le script écrit dans le champ Sources de chaque carte les règles principales appliquées (X5).

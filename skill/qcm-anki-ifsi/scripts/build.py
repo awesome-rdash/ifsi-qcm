@@ -325,7 +325,7 @@ for q in QS:
         fn = f"{PREFIX}_{nm}.jpg"; im.save(os.path.join(OUT, "media", fn), quality=88); crops[q.id] = fn
 
 # ---------- règles du skill appliquées (D55) ----------
-SKILL_VERSION = "1.10"
+SKILL_VERSION = "1.10.1"
 ORDRE = "S P C F R V M E X G".split()
 def regles(q, g):
     r = {"S1", "R1", "R7", "R8", "M1", "M3", "M12", "X1"}

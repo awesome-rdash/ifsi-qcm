@@ -22,8 +22,8 @@ Chaque dossier a son `CLAUDE.md` : lancer Claude Code **dans** le dossier du rô
 - Traçabilité : retour R-xx → décision Dxx → règle du skill → contrôle du script (D94).
 - Ne jamais supprimer un fichier hors de ce dépôt (Drive, autres dossiers) sans l'accord de l'étudiant :
   copier, jamais déplacer.
-- En fin de session : rappeler à l'étudiant de recopier dans le projet Claude « QCM IFSI » les
-  documents de `skill/docs/` modifiés.
+- Tout se fait dans Claude Code : le dépôt est la seule source des documents, sans copie dans le
+  projet claude.ai (D125).
 
 ## Hors du dépôt
 - PDF des cours : `G:\Mon Drive\FOR\IFSI\UE\…` (chemin dans le `cours.py` du cours).
