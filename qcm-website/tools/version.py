@@ -16,8 +16,10 @@ def git(*args):
 
 
 def main(sortie):
-    total = int(git("rev-list", "--count", "HEAD"))
-    lignes = git("log", "-10", "--format=%cI%x1f%s").splitlines()
+    # Commits du site seulement : ni l'historique du skill (fusionné par subtree) ni ses commits.
+    site = ["--first-parent", "HEAD", "--", ":/", ":(top,exclude)skill", ":(top,exclude)qcm-generation"]
+    total = int(git("rev-list", "--count", *site))
+    lignes = git("log", "-10", "--format=%cI%x1f%s", *site).splitlines()
     changelog = [{"version": total - i, "date": d, "raison": s}
                  for i, (d, s) in enumerate(l.split("\x1f", 1) for l in lignes)]
     sortie.parent.mkdir(parents=True, exist_ok=True)

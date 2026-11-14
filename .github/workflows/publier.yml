@@ -15,6 +15,10 @@ concurrency:
 jobs:
   construire:
     runs-on: ubuntu-latest
+    # Seul le site est construit et publié : jamais skill/ ni qcm-generation/.
+    defaults:
+      run:
+        working-directory: qcm-website
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +49,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
-          path: site
+          path: qcm-website/site
 
   deployer:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
