@@ -3,7 +3,7 @@ name: qcm-anki-ifsi
 description: Génère un paquet Anki de QCM (type QCMs, importance I0-I3, images) à partir d'un cours PDF d'IFSI, avec phase d'analyse, relecture indépendante et contrôles. À utiliser pour créer ou corriger des QCM Anki à partir d'un cours.
 ---
 
-# QCM Anki à partir d'un cours IFSI — skill v1.9.1
+# QCM Anki à partir d'un cours IFSI — skill v1.10
 
 ## Rôle
 Produire, à partir d'un cours (PDF de diapos + prises de notes), un **paquet Anki `.apkg` prêt à importer** qui couvre **toutes** les connaissances du cours, classées par importance, et qui soit difficile à réussir par simple ruse.
@@ -13,15 +13,15 @@ L'étudiant est en 2e année d'IFSI et a très peu de temps : le résultat doit 
 - `references/regles.md` — **toutes les règles codées** (S, P, C, F, R, V, M, E, X, G). À lire en entier avant la phase 1 et avant la génération.
 - `references/fichiers.md` — espace de travail, format de `k.py`, `Q(...)`, `cours.py`, `glossaire_cours.py`, type de note. À lire avant la phase 2.
 - `references/relecture.md` — consignes de la phase 2b.
-- `scripts/` — `build.py`, `common.py`, `glossaire.py`, `Type de note QCMs.apkg`. À copier dans l'espace de travail (`references/fichiers.md`).
+- `scripts/` — `build.py`, `common.py`, `glossaire.py`, `Type de note QCMs.apkg`. Appelés sur place avec Claude Code, copiés dans l'espace de travail dans le cloud (`references/fichiers.md`).
 
 ## Garde-fous
-- Le **pourquoi** de chaque règle et l'historique sont dans `G:\Mon Drive\FOR\IFSI\Anki\Prompts\Historique et décisions - QCM Anki IFSI.md` : le lire en cas de doute sur une règle.
-- **Toute décision prise en conversation y est écrite** (numéro, décision, pourquoi, qui) **avant la fin de la conversation**, dans la copie du Drive **et** dans le document du projet Claude « QCM IFSI » (`claude/QCM Anki - Historique et décisions.md`) : rien ne doit reposer sur la seule conversation. Les petites décisions (organisation, livraison, outils, essais abandonnés) vont, avec leur raison, dans le journal complet (`claude/QCM Anki - Journal complet de la conversation.md`, copie dans `Anki\Prompts\Historique\`).
-- Dossier de l'étudiant : `G:\Mon Drive\FOR\IFSI` (cours dans `UE\Semestre <n>\…`, paquets dans `Anki\Decks\S<n> - <UE> - <Cours>\`).
-- Dossier `Anki\Prompts\` : à la racine, seulement `Historique\` (anciennes versions), `Outils\`, le journal des décisions et le zip du skill. Ne rien y ajouter d'autre.
+- Le **pourquoi** de chaque règle et l'historique sont dans le journal des décisions, `C:\Git\ifsi-tools\skill\docs\Historique et décisions - QCM Anki IFSI.md` (dans le cloud : projet Claude « QCM IFSI », `claude/QCM Anki - Historique et décisions.md`) : le lire en cas de doute sur une règle.
+- **Toute décision prise en conversation y est écrite** (numéro, décision, pourquoi, qui) **avant la fin de la conversation**, dans le journal du dépôt **et** dans le document du projet Claude : rien ne doit reposer sur la seule conversation. Plus de copie sur le Drive. Les petites décisions (organisation, livraison, outils, essais abandonnés) vont, avec leur raison, dans le journal complet (`claude/QCM Anki - Journal complet de la conversation.md`, copie dans `skill\docs\historique\`).
+- Dossier de l'étudiant : `G:\Mon Drive\FOR\IFSI` (cours dans `UE\Semestre <n>\…`, paquets livrés dans `Anki\Decks\S<n> - <UE> - <Cours>\`).
+- Les documents du skill (journal, retours, historique) sont dans le dépôt `C:\Git\ifsi-tools\skill\docs\` ; ne plus rien écrire dans `Anki\Prompts\` du Drive.
 - **Environnement** :
-  - **Claude Code sur le PC de l'étudiant (environnement par défaut de la génération)** : lire le cours, les notes, l'index et les chapitres de Collège **sur place**, sans les copier ; extraire le texte et rendre les pages en image avec `pymupdf`. Espace de travail local, hors Google Drive : `%USERPROFILE%\QCM-travail\<S<n> - <UE> - <Cours>>\`. Le projet Claude n'est pas accessible : lire les copies du Drive (journal, index des collèges, documents de retours dans `Anki\Prompts\Historique\Retours\`) et, en fin de conversation, rappeler à l'étudiant de recopier dans le projet les documents modifiés.
+  - **Claude Code sur le PC de l'étudiant (environnement par défaut de la génération)** : lire le cours et les notes **sur place** sur le Drive, l'index et les chapitres de Collège dans la copie locale `C:\Git\ifsi-tools\qcm-generation\colleges\`, sans les copier ; extraire le texte et rendre les pages en image avec `pymupdf`. Espace de travail : `C:\Git\ifsi-tools\qcm-generation\cours\<S<n> - <UE> - <Cours>>\`. Le projet Claude n'est pas accessible : lire les documents du dépôt (journal, documents de retours dans `skill\docs\retours\`) et, en fin de conversation, rappeler à l'étudiant de recopier dans le projet les documents modifiés.
   - **Conversation Claude dans le cloud, liée au PC** : copier dans l'espace de travail les seuls fichiers utiles (cours, chapitres de Collège relevés en phase 1), jamais un dossier entier ; fichier de plus de 400 Mo ou dossier dont le nom contient un emoji : demander à l'étudiant de l'ajouter par « + » → « Ajouter un dossier ».
 - Modèle conseillé : Claude Opus (exactitude médicale des mauvaises réponses).
 - Codes des règles : lettre de la section + numéro, **jamais réattribués**. Le script écrit dans le champ Sources de chaque carte les règles principales appliquées (X5).
@@ -63,14 +63,14 @@ Numérotation : `INC-1…` pour les incohérences, `Q-1…` pour les questions (
 1. Inventaire détaillé dans `k.py` (format : `references/fichiers.md`).
 2. Questions dans un ou plusieurs fichiers `QS = [Q(...)]`, **dans l'ordre du cours**, en appliquant `references/regles.md`.
 3. `cours.py` (et, si besoin, `glossaire_cours.py`).
-4. `python Outils/build.py <cours> --report-only` → corriger jusqu'à **zéro blocage**, puis traiter chaque ligne du rapport (dont `X3_termes_sans_definition`).
+4. `python <scripts>/build.py <cours> --report-only` (`<scripts>` : `references/fichiers.md`) → corriger jusqu'à **zéro blocage**, puis traiter chaque ligne du rapport (dont `X3_termes_sans_definition`).
 5. Audit des listes (C1) : pour chaque connaissance qui est une liste, vérifier que chaque élément est la bonne réponse d'au moins une carte.
 
 ### Phase 2b — Relecture indépendante (obligatoire)
 Suivre `references/relecture.md` : un relecteur à l'aveugle (répond aux questions) et un relecteur des règles (coche chaque règle importante, carte par carte), sur **toutes** les cartes à chaque génération ou régénération.
 
 ### Phase 3 — Livraison
-- `python Outils/build.py <cours>` produit le `.apkg`, `- questions.tsv`, `- couverture.xlsx` et `stats.json`.
+- `python <scripts>/build.py <cours>` produit, dans `<cours>/out/`, le `.apkg`, `- questions.tsv`, `- couverture.xlsx` et `stats.json`.
 - **Tester** : réimporter deux fois dans une collection vierge. Vérifier un seul type QCMs, le bon paquet, les images présentes, aucun doublon.
 - Déposer tous les fichiers dans `Anki\Decks\S<n> - <UE> - <Cours>\` (semestre en tête, ex. `S3 - UE 2.8 - CM6 AVC`), avec `relecture.md`.
 - Faire un résumé : volume, importance, formats, vignettes, ⛔, ✎/⚠, concordance de la relecture, écarts aux cibles.

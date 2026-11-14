@@ -4,3 +4,5 @@ desktop.ini
 # Copie locale des Collèges (D122) : seul l'index est versionné.
 qcm-generation/colleges/*
 !qcm-generation/colleges/_Index des collèges.md
+# Produits de build.py dans chaque cours (D123)
+qcm-generation/cours/*/out/

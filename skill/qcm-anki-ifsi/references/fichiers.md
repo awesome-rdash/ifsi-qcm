@@ -2,15 +2,18 @@
 
 ## Espace de travail
 ```
-Outils/                      ← copie du dossier scripts/ du skill (build.py, common.py, glossaire.py, Type de note QCMs.apkg)
-<cours>/                     ← un dossier par cours : PDF + notes, cours.py, k.py, fichiers de questions, sources.md
+<cours>/                     ← un dossier par cours : cours.py, k.py, fichiers de questions, glossaire_cours.py, sources.md, rapports de relecture
+<cours>/out/                 ← produit par build.py (.apkg, médias, tableaux) ; non versionné
 <cours>/refs/                ← conversation cloud seulement : copies des chapitres de Collège relevés en phase 1 (S9)
+Outils/                      ← conversation cloud seulement : copie du dossier scripts/ du skill
 ```
-- Emplacement : Claude Code sur le PC → `%USERPROFILE%\QCM-travail\<S<n> - <UE> - <Cours>>\` (local, hors Google Drive) ; conversation cloud → répertoire de travail de la session.
-- Modèle complet : `G:\Mon Drive\FOR\IFSI\Anki\Prompts\Outils\exemple CM6 AVC\`.
+- Emplacement : Claude Code sur le PC → `C:\Git\ifsi-tools\qcm-generation\cours\<S<n> - <UE> - <Cours>>\` (dépôt git, hors Google Drive) ; conversation cloud → répertoire de travail de la session.
+- Le PDF du cours et les notes restent sur le Drive (`G:\Mon Drive\FOR\IFSI\UE\…`) : chemin complet dans `PDF` de `cours.py`.
+- Modèle complet : `C:\Git\ifsi-tools\qcm-generation\cours\S3 - UE 2.8 - CM6 AVC\`.
 - Les chemins de `cours.py` sont relatifs au dossier du cours.
-- Commande : `python Outils/build.py <cours> [--report-only]` (`python3` sous Linux).
-- `pip install anki pymupdf openpyxl` si ces bibliothèques manquent (ajouter `--break-system-packages` dans le cloud).
+- `<scripts>` : Claude Code → `C:\Git\ifsi-tools\skill\qcm-anki-ifsi\scripts` (appelés sur place, jamais copiés) ; cloud → `Outils`.
+- Commande : `python <scripts>/build.py <cours> [--report-only]` (`python3` sous Linux).
+- `pip install anki pymupdf openpyxl pillow` si ces bibliothèques manquent (ajouter `--break-system-packages` dans le cloud).
 
 ## sources.md — sources de travail (phase 1, S3, S9)
 Tableau relevé une fois en phase 1 et réutilisé pendant toute la génération et la relecture :
@@ -46,7 +49,7 @@ Un ou plusieurs fichiers Python (`from common import Q`), dans l'ordre du cours.
 `CORRECTIONS = [(module, dictionnaire), …]` dans `cours.py` : chaque dictionnaire associe un id à `{attribut: valeur}` (ou à une liste, qui remplace `props`). Ils s'appliquent dans l'ordre de la liste.
 
 ## cours.py — paramètres du cours
-`NOM`, `PDF`, `PDFNAME`, `TYPE`, `CONTEXTE`, `DECK`, `PREFIX` (minuscules, sans espace : préfixe des images et des GUID), `MODEL`, `VERSION` (= version du skill), `REF_APKG` (facultatif : par défaut `Type de note QCMs.apkg` du dossier `Outils/`), `QFILES`, `CORRECTIONS`, `DOMAINE` (préfixe R8), `DOMAINE_VOCAB`, `TEXT_REPL` (sigles écrits en toutes lettres), `SIGLES_OK`, `TITRE_VIGNETTE` (facultatif : titre neutre des vignettes, « Cas clinique » par défaut, R11).
+`NOM`, `PDF`, `PDFNAME`, `TYPE`, `CONTEXTE`, `DECK`, `PREFIX` (minuscules, sans espace : préfixe des images et des GUID), `MODEL`, `VERSION` (= version du skill), `REF_APKG` (facultatif : par défaut `Type de note QCMs.apkg` du dossier `<scripts>`), `QFILES`, `CORRECTIONS`, `DOMAINE` (préfixe R8), `DOMAINE_VOCAB`, `TEXT_REPL` (sigles écrits en toutes lettres), `SIGLES_OK`, `TITRE_VIGNETTE` (facultatif : titre neutre des vignettes, « Cas clinique » par défaut, R11).
 
 ## Rapport de build.py
 - `BLOQUANT` : liste des blocages, puis le nombre de cartes bloquées par règle. Corriger jusqu'à zéro.

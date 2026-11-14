@@ -2,7 +2,7 @@
 Usage : python build.py <dossier_du_cours> [--report-only]
 Le dossier du cours contient : cours.py (paramètres), k.py (inventaire K + EXCLUS),
 les fichiers de questions listés dans cours.QFILES, et facultativement corrections.py (dict CORR id -> attributs).
-Les scripts communs (build.py, common.py, glossaire.py) restent dans le dossier Outils."""
+Les scripts communs (build.py, common.py, glossaire.py) restent dans le dossier scripts/ du skill, appelés sur place."""
 import sys, os, re, shutil, collections, datetime, hashlib, json, importlib, statistics as st
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 COURSE = os.path.abspath(next((a for a in sys.argv[1:] if not a.startswith("--")), "."))
@@ -325,7 +325,7 @@ for q in QS:
         fn = f"{PREFIX}_{nm}.jpg"; im.save(os.path.join(OUT, "media", fn), quality=88); crops[q.id] = fn
 
 # ---------- règles du skill appliquées (D55) ----------
-SKILL_VERSION = "1.9.1"
+SKILL_VERSION = "1.10"
 ORDRE = "S P C F R V M E X G".split()
 def regles(q, g):
     r = {"S1", "R1", "R7", "R8", "M1", "M3", "M12", "X1"}
