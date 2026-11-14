@@ -2,7 +2,7 @@
 ko/ : chaque contrôle v1.8 bloque la carte attendue ; ok/ : paquet construit, champ Informations complémentaires conforme."""
 import os, re, sys, shutil, subprocess, tempfile, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
-BUILD = os.path.join(HERE, "..", "scripts", "build.py")
+BUILD = os.path.join(HERE, "..", "qcm-anki-ifsi", "scripts", "build.py")
 run = lambda d, *a: subprocess.run([sys.executable, BUILD, d, *a], capture_output=True, text=True, encoding="utf-8", env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
 # 1. cartes fautives
@@ -31,7 +31,7 @@ assert 'text-align:left' in a2                                                  
 src = a2.split("\t")[4]                                                                 # S3, S9, X5 : sources libellées, dans l'ordre cours → cité → Collège → Web
 i_cite, i_col, i_web = src.index("(cité par le support de cours, p. 1)"), src.index("Collège — Neurologie, 7e édition, 2025, chap. « Accidents vasculaires cérébraux », item 340, p. 300 du PDF d'origine"), src.index("Web — HAS")
 assert src.index("CM IFSI — test.pdf") < i_cite < i_col < i_web, src
-SV = re.search(r'SKILL_VERSION = "([^"]+)"', open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts", "build.py"), encoding="utf-8").read()).group(1)
+SV = re.search(r'SKILL_VERSION = "([^"]+)"', open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "qcm-anki-ifsi", "scripts", "build.py"), encoding="utf-8").read()).group(1)
 assert re.search(r"Règles du skill qcm-anki-ifsi v" + re.escape(SV) + " : .*S3.*S9", src), src
 a3 = next(v for k, v in rows.items() if "Mme T." in k)
 assert "\tCas clinique\t" in a3, a3                                                    # R11 : titre neutre par défaut
@@ -40,7 +40,7 @@ shutil.rmtree(tmp)
 print("OK")
 
 # 3. glossaire commun sans page de cours ; une entrée du cours remplace l'entrée commune du même terme (D108)
-sys.path.insert(0, os.path.join(HERE, "..", "scripts")); import glossaire
+sys.path.insert(0, os.path.join(HERE, "..", "qcm-anki-ifsi", "scripts")); import glossaire
 try: glossaire._check([("X", "x", "déf.", [("CM1 Test, p. 1", None)])], commun=True); raise AssertionError("page de cours acceptée dans le commun")
 except ValueError: pass
 glossaire._check([("Y", "y", "déf.", [("Collège — Neurologie, 7e édition, 2025, chap. « AVC », p. 300 du PDF d'origine", None)])], commun=True)   # S9 : Collège permis dans le commun
