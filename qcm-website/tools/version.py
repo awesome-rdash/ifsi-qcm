@@ -17,7 +17,8 @@ def git(*args):
 
 def main(sortie):
     # Commits du site seulement : ni l'historique du skill (fusionné par subtree) ni ses commits.
-    site = ["--first-parent", "HEAD", "--", ":/", ":(top,exclude)skill", ":(top,exclude)qcm-generation"]
+    site = ["--first-parent", "HEAD", "--", ":/", ":(top,exclude)skill", ":(top,exclude)qcm-generation",
+            ":(top,exclude).gitignore", ":(top,exclude,glob)**/CLAUDE.md"]
     total = int(git("rev-list", "--count", *site))
     lignes = git("log", "-10", "--format=%cI%x1f%s", *site).splitlines()
     changelog = [{"version": total - i, "date": d, "raison": s}
