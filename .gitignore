@@ -1,3 +1,6 @@
 qcm-website/site/data/
 __pycache__/
 desktop.ini
+# Copie locale des Collèges (D122) : seul l'index est versionné.
+qcm-generation/colleges/*
+!qcm-generation/colleges/_Index des collèges.md
