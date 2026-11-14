@@ -1,5 +1,5 @@
 # Glossaire : (terme, motif regex, définition courte, sources). Règle X3 : un terme, une définition, une ligne ; chaque définition est sourcée
-# (page du cours qui la donne et/ou source fiable en ligne, avec URL).
+# (page du cours qui la donne, chapitre de Collège — format college() de common.py — et/ou source fiable en ligne, avec URL).
 import re
 G = [
 ("AIC", r"\bAIC\b", "Accident ischémique cérébral : infarctus cérébral ou AIT.", [("HPSJ, livret AVC", 'https://www.hpsj.fr/storage/2015/01/Livret_AVC_patient2024.pdf')]),
@@ -116,14 +116,14 @@ _C = [(t, re.compile(p, re.I if not re.search(r"\\b[A-Z]", p) else 0), d, src) f
 
 def _check(entries, commun=False):
     """Une ligne = un terme = une définition (D50) : jamais « A / B » ni « déf. A / déf. B ».
-    Glossaire commun : sources en ligne uniquement ; une page de cours va dans glossaire_cours.py du cours (D108)."""
+    Glossaire commun : sources en ligne ou chapitres de Collège (S9) ; une page de cours va dans glossaire_cours.py du cours (D108)."""
     for e in entries:
         if len(e) != 4 or not e[3]:
             raise ValueError(f"Glossaire : « {e[0]} » sans source (règle S8) : ajouter la page du cours ou une source fiable.")
         t, p, d, src = e
         if "/" in t or " / " in d:
             raise ValueError(f"Glossaire : « {t} » regroupe plusieurs termes ou définitions ; faire une ligne par terme (règle X3).")
-        if commun and any(u is None for _a, u in src):
+        if commun and any(u is None and not a_.startswith("Collège — ") for a_, u in src):
             raise ValueError(f"Glossaire commun : « {t} » cite une page de cours ; mettre cette entrée dans glossaire_cours.py du cours (règle X3).")
 
 _check(G, commun=True)

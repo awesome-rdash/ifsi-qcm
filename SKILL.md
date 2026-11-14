@@ -3,7 +3,7 @@ name: qcm-anki-ifsi
 description: Génère un paquet Anki de QCM (type QCMs, importance I0-I3, images) à partir d'un cours PDF d'IFSI, avec phase d'analyse, relecture indépendante et contrôles. À utiliser pour créer ou corriger des QCM Anki à partir d'un cours.
 ---
 
-# QCM Anki à partir d'un cours IFSI — skill v1.8.1
+# QCM Anki à partir d'un cours IFSI — skill v1.9.1
 
 ## Rôle
 Produire, à partir d'un cours (PDF de diapos + prises de notes), un **paquet Anki `.apkg` prêt à importer** qui couvre **toutes** les connaissances du cours, classées par importance, et qui soit difficile à réussir par simple ruse.
@@ -20,23 +20,32 @@ L'étudiant est en 2e année d'IFSI et a très peu de temps : le résultat doit 
 - **Toute décision prise en conversation y est écrite** (numéro, décision, pourquoi, qui) **avant la fin de la conversation**, dans la copie du Drive **et** dans le document du projet Claude « QCM IFSI » (`claude/QCM Anki - Historique et décisions.md`) : rien ne doit reposer sur la seule conversation. Les petites décisions (organisation, livraison, outils, essais abandonnés) vont, avec leur raison, dans le journal complet (`claude/QCM Anki - Journal complet de la conversation.md`, copie dans `Anki\Prompts\Historique\`).
 - Dossier de l'étudiant : `G:\Mon Drive\FOR\IFSI` (cours dans `UE\Semestre <n>\…`, paquets dans `Anki\Decks\S<n> - <UE> - <Cours>\`).
 - Dossier `Anki\Prompts\` : à la racine, seulement `Historique\` (anciennes versions), `Outils\`, le journal des décisions et le zip du skill. Ne rien y ajouter d'autre.
+- **Environnement** :
+  - **Claude Code sur le PC de l'étudiant (environnement par défaut de la génération)** : lire le cours, les notes, l'index et les chapitres de Collège **sur place**, sans les copier ; extraire le texte et rendre les pages en image avec `pymupdf`. Espace de travail local, hors Google Drive : `%USERPROFILE%\QCM-travail\<S<n> - <UE> - <Cours>>\`. Le projet Claude n'est pas accessible : lire les copies du Drive (journal, index des collèges, documents de retours dans `Anki\Prompts\Historique\Retours\`) et, en fin de conversation, rappeler à l'étudiant de recopier dans le projet les documents modifiés.
+  - **Conversation Claude dans le cloud, liée au PC** : copier dans l'espace de travail les seuls fichiers utiles (cours, chapitres de Collège relevés en phase 1), jamais un dossier entier ; fichier de plus de 400 Mo ou dossier dont le nom contient un emoji : demander à l'étudiant de l'ajouter par « + » → « Ajouter un dossier ».
 - Modèle conseillé : Claude Opus (exactitude médicale des mauvaises réponses).
 - Codes des règles : lettre de la section + numéro, **jamais réattribués**. Le script écrit dans le champ Sources de chaque carte les règles principales appliquées (X5).
 
 ## Processus
 
 ### Phase 1 — Analyse (obligatoire, attendre la validation)
-Lire tout le cours, faire les vérifications web nécessaires, puis présenter :
+Lire tout le cours, puis **relever les sources de travail** une fois pour toute la génération (S3, S9) :
+- les **références citées sur les diapos** (étude, recommandation, ouvrage), avec la page ;
+- pour **chaque partie du cours**, le ou les **chapitres de Collège** correspondants, trouvés dans l'index : collège, édition, année, type (numérique ou scan + OCR), fichier, pages d'origine. Noter le tableau dans `sources.md` (`references/fichiers.md`) ; dans le cloud, copier ces seuls PDF dans `refs/` du dossier du cours, avec Claude Code les lire sur place Pendant la génération et la relecture, **réutiliser ces chapitres sans rechercher à nouveau** ; le web ne sert qu'aux points que le collège ne couvre pas et aux données récentes (S12).
+
+Faire les vérifications nécessaires (cours, références citées, Collèges, puis web), puis présenter :
 - **les variables** :
   - UE, cours, type (`CM SSU`, `CM IFSI` ou `TD`) ;
   - Contexte : `IFSI - UE <n°> <intitulé> - <type> <cours>` ;
   - Paquet : `IFSI::QCM::Semestre <n>::UE <n°> - <intitulé>::<Cours>` ;
 - **le plan** du cours, avec les pages ;
+- **les sources de travail** : références citées par le cours et chapitres de Collège par partie (tableau de `sources.md`) ;
 - **l'inventaire** des connaissances avec leur importance (tableau condensé) ;
 - **l'estimation du nombre de questions**, calculée à partir de l'inventaire **détaillé** (aucune limite de volume) ;
 - les figures et l'imagerie à exploiter ;
 - les situations cliniques envisagées pour les vignettes ;
-- **les incohérences, déjà vérifiées en ligne**, avec le traitement proposé ;
+- **les incohérences, déjà vérifiées** (Collège puis web), avec le traitement proposé, dont les écarts entre un collège ancien et une recommandation plus récente (S12) ;
+- **les connaissances des Collèges absentes du cours** qu'il serait utile de ficher, à valider (S11) ;
 - les doutes ;
 - les questions à l'étudiant, dont le nombre de questions souhaité.
 
@@ -54,14 +63,14 @@ Numérotation : `INC-1…` pour les incohérences, `Q-1…` pour les questions (
 1. Inventaire détaillé dans `k.py` (format : `references/fichiers.md`).
 2. Questions dans un ou plusieurs fichiers `QS = [Q(...)]`, **dans l'ordre du cours**, en appliquant `references/regles.md`.
 3. `cours.py` (et, si besoin, `glossaire_cours.py`).
-4. `python3 Outils/build.py <cours> --report-only` → corriger jusqu'à **zéro blocage**, puis traiter chaque ligne du rapport (dont `X3_termes_sans_definition`).
+4. `python Outils/build.py <cours> --report-only` → corriger jusqu'à **zéro blocage**, puis traiter chaque ligne du rapport (dont `X3_termes_sans_definition`).
 5. Audit des listes (C1) : pour chaque connaissance qui est une liste, vérifier que chaque élément est la bonne réponse d'au moins une carte.
 
 ### Phase 2b — Relecture indépendante (obligatoire)
 Suivre `references/relecture.md` : un relecteur à l'aveugle (répond aux questions) et un relecteur des règles (coche chaque règle importante, carte par carte), sur **toutes** les cartes à chaque génération ou régénération.
 
 ### Phase 3 — Livraison
-- `python3 Outils/build.py <cours>` produit le `.apkg`, `- questions.tsv`, `- couverture.xlsx` et `stats.json`.
+- `python Outils/build.py <cours>` produit le `.apkg`, `- questions.tsv`, `- couverture.xlsx` et `stats.json`.
 - **Tester** : réimporter deux fois dans une collection vierge. Vérifier un seul type QCMs, le bon paquet, les images présentes, aucun doublon.
 - Déposer tous les fichiers dans `Anki\Decks\S<n> - <UE> - <Cours>\` (semestre en tête, ex. `S3 - UE 2.8 - CM6 AVC`), avec `relecture.md`.
 - Faire un résumé : volume, importance, formats, vignettes, ⛔, ✎/⚠, concordance de la relecture, écarts aux cibles.
@@ -76,7 +85,7 @@ Analyser les statistiques Anki exportées par l'étudiant :
 Corriger et réimporter : les GUID stables conservent la progression.
 
 ## Index des règles (texte complet : `references/regles.md`)
-- **S — Sources** : S1 PDF = source principale, texte et image · S2 notes = complément · S3 web fiable, cité · S4 ne rien inventer · S5 ⚠ non confirmé · S6 ✎ modification tracée · S7 chiffres différents = une question chacun · S8 toute définition hors cours sourcée
+- **S — Sources** : S1 PDF = source principale, texte et image · S2 notes = complément · S3 deux ordres de sources (bonnes réponses : cours → références citées par le cours → validé en phase 1 ; tout le reste : Collèges → web) · S4 ne rien inventer · S5 ⚠ non confirmé · S6 ✎ modification tracée · S7 chiffres différents = une question chacun · S8 toute définition hors cours sourcée · S9 Collèges : index, un PDF par chapitre, citation · S10 scan + OCR : chiffres vérifiés sur l'image · S11 le cours fixe le niveau · S12 données récentes : la plus récente l'emporte
 - **P — Importance** : P1 I0 · P2 I1 · P3 I2 · P4 I3 · P5 en cas de doute, le plus important · P6 « pas à connaître » = I3 · P7 ⛔ ⇒ au moins I1 · P8 pas d'autres tags · P9 calibrer sur la collection · P10 hiérarchie · P11 transversalité · P12 chiffres · P13 répartition de contrôle
 - **C — Couverture** : C1 tout, chaque élément de liste · C2 nombre d'angles · C3 vocabulaire · C4 pas de cas progressifs · C5 contrôle bloquant
 - **F — Formats** : F1 QCM · F2 QCS · F3 Kprim · F4 pas de renvoi numéroté · F5 « (s) », définition = QCS · F6 proportions = repères

@@ -1,5 +1,5 @@
 """Construction d'un paquet QCM Anki (skill qcm-anki-ifsi).
-Usage : python3 build.py <dossier_du_cours> [--report-only]
+Usage : python build.py <dossier_du_cours> [--report-only]
 Le dossier du cours contient : cours.py (paramètres), k.py (inventaire K + EXCLUS),
 les fichiers de questions listés dans cours.QFILES, et facultativement corrections.py (dict CORR id -> attributs).
 Les scripts communs (build.py, common.py, glossaire.py) restent dans le dossier Outils."""
@@ -121,6 +121,15 @@ def a_definir(text):
         if (tech or propre) and not any(rx.search(w) for _t, rx, _d, _s in glossaire._C): out.add(w)
     return out
 
+# ---------- libellés des sources (S3, S9, X5) ----------
+COLLEGE_RX = re.compile(r"^Collège — [^,]+, [^,]+, \d{4}, chap\. « .+ »(, items? [^,]+)?, p\. \d+(-\d+)? du PDF d'origine$")
+def SRC_RANG(w_):
+    """Rang d'une source dans le champ Sources : 1 cité par le support de cours, 2 Collège, 3 Web ; 0 = libellé manquant."""
+    if "(cité par le support de cours, p. " in w_: return 1
+    if w_.startswith("Collège — "): return 2
+    if w_.startswith("Web — "): return 3
+    return 0
+
 def checks():
     block, report = [], collections.defaultdict(list)
     ids = collections.Counter(q.id for q in QS)
@@ -186,6 +195,12 @@ def checks():
                 var = [n for n in (len({x[j] for x in PP}) for j in range(len(PP[0]))) if n > 1]
                 if len(var) >= 2 and all(n == 2 for n in var):
                     block.append(f"{q.id}: propositions composées à 2 valeurs par élément (M11) : {' | '.join(strip(p) for p in P)}")
+        # S3 / S9 : chaque source de w porte son libellé (cité par le support de cours, Collège, Web) ; citation de Collège complète
+        for w_ in q.w:
+            if not SRC_RANG(w_):
+                block.append(f"{q.id}: source sans libellé (S3) : « {w_} » → cite(), college() ou web() de common.py")
+            elif w_.startswith("Collège — ") and not COLLEGE_RX.match(w_):
+                block.append(f"{q.id}: citation de Collège incomplète (S9) : « {w_} » → college(nom, édition, année, chapitre, page[, item])")
         # X1 : chaque proposition, vraie ou fausse, est justifiée en une ligne (champ why, cité avec sa proposition)
         if "X1" not in q.ok and (len(q.why) != 4 or not all(str(w_).strip() for w_ in q.why)):
             block.append(f"{q.id}: justification manquante pour une ou plusieurs propositions (X1) : why={len(q.why)}/4")
@@ -310,7 +325,7 @@ for q in QS:
         fn = f"{PREFIX}_{nm}.jpg"; im.save(os.path.join(OUT, "media", fn), quality=88); crops[q.id] = fn
 
 # ---------- règles du skill appliquées (D55) ----------
-SKILL_VERSION = "1.8.1"
+SKILL_VERSION = "1.9.1"
 ORDRE = "S P C F R V M E X G".split()
 def regles(q, g):
     r = {"S1", "R1", "R7", "R8", "M1", "M3", "M12", "X1"}
@@ -323,7 +338,8 @@ def regles(q, g):
     if q.dz: r |= {"E1", "P7"}
     if q.x and "✎" in q.x: r.add("S6")
     if q.x and "⚠" in q.x: r.add("S5")
-    if q.w: r.add("S3")
+    if any(SRC_RANG(w_) in (1, 3) for w_ in q.w): r.add("S3")
+    if any(w_.startswith("Collège — ") for w_ in q.w) or any(a.startswith("Collège — ") for _t, _d, s_ in g for a, _u in s_): r |= {"S3", "S9"}
     if "<u>" in q.q: r.add("R5")
     if g: r.add("X3")
     if any(u for _t, _d, s in g for _a, u in s): r.add("S8")
@@ -351,7 +367,7 @@ def fields(q):
     info = ['<div style="text-align:left">' + "<br><br>".join(x for x in info if x) + "</div>"]   # X3 : aligné à gauche (débordement si centré)
     info.append("<br>".join(f'<img src="{img_name(p)}">' for p in pg))
     if refs: info.append("<small>" + "<br>".join(f'{i}. <a href="{u}">{a}</a>' if u else f"{i}. {a}" for i, (a, u) in enumerate(refs, 1)) + "</small>")
-    src = [f"{TYPE} — {PDFNAME}, {pr}"] + list(q.w) + [f"Généré par Claude ({MODEL}) — skill v{VERSION} — {DATE} — {q.id}",
+    src = [f"{TYPE} — {PDFNAME}, {pr}"] + sorted(q.w, key=SRC_RANG) + [f"Généré par Claude ({MODEL}) — skill v{VERSION} — {DATE} — {q.id}",
                                                        f"Règles du skill qcm-anki-ifsi v{SKILL_VERSION} : {regles(q, g)}"]
     f = {"Question": f"<b>{qtext(q)}</b>{SUFFIX[q.mode]}" + (f'<br><img src="{crops[q.id]}">' if q.id in crops else ""),
          "Titre": title(q), "Mode (0=kprim, 1=qcm, 2=qcu)": str(q.mode), "Réponses (0=faux, 1=vrai)": " ".join(q.truth),

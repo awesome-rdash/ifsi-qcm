@@ -3,12 +3,20 @@
 ## Espace de travail
 ```
 Outils/                      ← copie du dossier scripts/ du skill (build.py, common.py, glossaire.py, Type de note QCMs.apkg)
-<cours>/                     ← un dossier par cours : PDF + notes, cours.py, k.py, fichiers de questions
+<cours>/                     ← un dossier par cours : PDF + notes, cours.py, k.py, fichiers de questions, sources.md
+<cours>/refs/                ← conversation cloud seulement : copies des chapitres de Collège relevés en phase 1 (S9)
 ```
+- Emplacement : Claude Code sur le PC → `%USERPROFILE%\QCM-travail\<S<n> - <UE> - <Cours>>\` (local, hors Google Drive) ; conversation cloud → répertoire de travail de la session.
 - Modèle complet : `G:\Mon Drive\FOR\IFSI\Anki\Prompts\Outils\exemple CM6 AVC\`.
 - Les chemins de `cours.py` sont relatifs au dossier du cours.
-- Commande : `python3 Outils/build.py <cours> [--report-only]`.
-- `pip install anki pymupdf openpyxl --break-system-packages` si ces bibliothèques manquent.
+- Commande : `python Outils/build.py <cours> [--report-only]` (`python3` sous Linux).
+- `pip install anki pymupdf openpyxl` si ces bibliothèques manquent (ajouter `--break-system-packages` dans le cloud).
+
+## sources.md — sources de travail (phase 1, S3, S9)
+Tableau relevé une fois en phase 1 et réutilisé pendant toute la génération et la relecture :
+- **Références citées par le cours** : `référence | page du cours | ce qu'elle apporte`.
+- **Chapitres de Collège** : `partie du cours (pages) | collège, édition, année | type (numérique ou scan + OCR) | fichier (chemin complet) | pages d'origine | copié dans refs/ (cloud seulement)`.
+- Pour un collège « scan + OCR », tout chiffre repris est vérifié sur l'image de la page (S10).
 
 ## k.py — inventaire détaillé
 - `K = [(id, pages, importance, section, texte), …]` : une ligne par connaissance, **dans l'ordre du cours**.
@@ -23,7 +31,11 @@ Un ou plusieurs fichiers Python (`from common import Q`), dans l'ordre du cours.
 - `mode` : 0 = Kprim, 1 = QCM, 2 = QCS ;
 - `q`, `props` (4 propositions), `truth` (ex. `"0110"`) ;
 - `expl`, `notion` ;
-- `x` (`✎` / `⚠` / `Complément`), `w` (sources web) ;
+- `x` (`✎` / `⚠` / `Complément`), `w` (sources hors cours, chacune écrite avec une fonction de `common.py`, S3, X5) :
+  - `cite("Doll R. et al., BMJ 2004", 29)` → « Doll R. et al., BMJ 2004 (cité par le support de cours, p. 29) » ;
+  - `college("Pneumologie", "9e édition", 2026, "Addiction au tabac", 12, item=75)` → « Collège — Pneumologie, 9e édition, 2026, chap. « Addiction au tabac », item 75, p. 12 du PDF d'origine » ;
+  - `web("HAS", "Titre de la page", "https://…")` → « Web — HAS, Titre de la page, https://… ».
+  Une source sans libellé ou une citation de Collège incomplète bloque (S3, S9). Le script les range dans l'ordre : cité par le cours, Collège, web ;
 - `img` (cliché recadré : xref, cadre, nom), `pg` (pages en plus) ;
 - `dz` (erreurs dangereuses : `{index: raison}`) ;
 - `allow`, `lenok` (exceptions justifiées), `vign` (vignette), `titre` (titre neutre imposé, R11) ;
@@ -42,6 +54,7 @@ Un ou plusieurs fichiers Python (`from common import Q`), dans l'ordre du cours.
 
 ## glossaire_cours.py — termes propres au cours (facultatif)
 `EXTRA = [(terme, motif, définition, [(source, URL ou None)])]` : un seul terme par entrée, source obligatoire, sinon `build.py` bloque.
+- Ordre des sources d'une définition (S3, S8) : page du cours, puis chapitre de Collège (`(college(...), None)`), puis source en ligne. Une citation de Collège est permise aussi dans `glossaire.py` commun.
 - Une page du cours s'écrit `("<cours>, p. <n>", None)` ; elle n'est permise qu'ici, jamais dans `glossaire.py` commun (bloquant).
 - Une entrée du même terme qu'une entrée de `glossaire.py` la **remplace** pour ce cours.
 - Le glossaire d'une carte s'affiche par ordre alphabétique.

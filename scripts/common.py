@@ -25,3 +25,18 @@ class Q:
     def __post_init__(self):
         self.ks = self.ks.split()
         self.w = self.w or []
+
+
+# ---------- citations du champ Sources (S3, S9, X5) : à utiliser dans w=[...] et dans les sources du glossaire ----------
+def cite(reference, page):
+    """Référence citée sur une diapo du cours (rang 2 des bonnes réponses, S3)."""
+    return f"{reference} (cité par le support de cours, p. {page})"
+
+def college(nom, edition, annee, chapitre, page, item=None):
+    """Chapitre d'un Collège (S9) ; page = page du PDF d'origine, telle que l'index la donne."""
+    it = f", item {item}" if item else ""
+    return f"Collège — {nom}, {edition}, {annee}, chap. « {chapitre} »{it}, p. {page} du PDF d'origine"
+
+def web(organisme, titre, url):
+    """Source en ligne fiable (S3, rang après les Collèges)."""
+    return f"Web — {organisme}, {titre}, {url}"

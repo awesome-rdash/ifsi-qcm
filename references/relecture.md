@@ -10,12 +10,13 @@ Deux relecteurs, chacun dans des **sous-agents séparés** qui n'ont pas écrit 
 - Comparer ses réponses aux clés.
 
 ## 2. Relecteur des règles — vérifie chaque carte complète
-- Lots d'environ 50 cartes. Il reçoit `references/regles.md`, le texte du cours et les cartes **complètes** : titre affiché, énoncé, propositions, clés, explication, justifications, ⛔ / ✎ / ⚠ / Complément, glossaire affiché.
+- Lots d'environ 50 cartes. Il reçoit `references/regles.md`, le texte du cours, `sources.md` et le texte des chapitres de `refs/` (S9 : pas de nouvelle recherche, sauf point non couvert), et les cartes **complètes** : titre affiché, énoncé, propositions, clés, explication, justifications, ⛔ / ✎ / ⚠ / Complément, glossaire affiché.
 - Pour **chaque carte**, il coche **chaque règle** de la liste ci-dessous : `OK`, ou `KO` avec le motif en une phrase. Il ne saute aucune règle, même si la carte semble correcte.
 
 | Règle | Ce qu'il vérifie |
 |---|---|
 | S4 | Bonne réponse conforme au cours ; mauvaises réponses fausses sans ambiguïté |
+| S3, S9-S12 | Chaque source hors cours est libellée et pertinente (Collège avant web) ; bonne réponse tirée d'un collège seulement si validée en phase 1 ; chiffre d'un collège « scan + OCR » vérifié sur l'image ; aucune donnée d'un collège ancien contredite par une recommandation plus récente |
 | R1, R12 | Question compréhensible seule ; mots sans ambiguïté (verbe et complément, organe, point de départ des délais) |
 | R5 | Mot discriminant souligné ; sujet souligné aussi quand l'attribut vaut pour plusieurs maladies |
 | R7 | Aucun mot de l'énoncé (même racine) seulement dans les bonnes réponses ; critère de découpage d'une liste absent de la question |
